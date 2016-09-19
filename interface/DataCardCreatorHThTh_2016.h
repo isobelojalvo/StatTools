@@ -17,6 +17,13 @@
 #include <boost/lexical_cast.hpp>
 //#include "FineBins.h"
 
+using std::cout;
+using std::string;
+using std::vector;
+using std::endl;
+using std::pair;
+using std::make_pair;
+
 struct BkgOutput {
 	float DATA;
 	float W, dW;
@@ -48,20 +55,18 @@ class DataCardCreatorHThTh_2016 {
 			samesign_ = parser.doubleValue("samesign");
 
 
-                        std::string name_=channel_;
-                        if (channel_=="eleTau") filelabel_="et";
-                        if (channel_=="muTau") filelabel_="mt";
+                        string name_=channel_;
 			if (channel_=="tauTau") filelabel_="tt";
 
 
 			//create the name you need to add to the histograms 
 			//in the root file 
 			for(unsigned int i=0;i<shifts_.size();++i) {
-				std::string shiftL = shifts_.at(i);
+				string shiftL = shifts_.at(i);
 				shiftL.resize(1);
 				boost::to_lower(shiftL);
-				std::cout<<"shiftL: "<<shiftL<<std::endl;
-				std::string chan = "mutau";
+				cout<<"shiftL: "<<shiftL<<endl;
+				string chan = "mutau";
 				//Change Me
 				if(channel_=="eleTau") chan = "etau";
 				shiftsPostFix_.push_back("CMS_scale_"+shiftL+"_"+chan+"_"+energy_);
@@ -87,8 +92,6 @@ class DataCardCreatorHThTh_2016 {
 			antibSelection_       = parser.stringValue("antibSelection");
 			btagRelaxedSelection_ = parser.stringValue("btagRelaxedSelection");
 			trigSelection_        = parser.stringValue("trigSelection");
-			trigSelection50ns_        = parser.stringValue("trigSelection50ns");
-			trigSelection25ns_        = parser.stringValue("trigSelection25ns");
 			blinding_             = parser.stringValue("blinding");
 			charge_               = parser.stringValue("charge");
                         if (samesign_) charge_="abs(charge)==2";
@@ -99,7 +102,6 @@ class DataCardCreatorHThTh_2016 {
 			ZJFT_genLReject_      = "gen_match_2==6";
 			ZLL_genLLSel_        = "(gen_match_2<5||gen_match_2==6)"; //Zttyield
 
-			//
 			if(samesign_>0)
 			  osSignalSelection_    = signalSelection_+"&&abs(charge)==2";
 			else
@@ -171,22 +173,22 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		void makeHiggsShape(std::string preselection, std::string categoryselection, std::string prefix) {
+		void makeHiggsShape(string preselection, string categoryselection, string prefix) {
 
-			std::pair<float,float> tmp;
+			pair<float,float> tmp;
 			float legCorr=1.0;
 
 			if(muID_!=0&&eleID_!=0) {legCorr*=muID_*eleID_;}
 			if(muID_!=0&&eleID_==0) {legCorr*=muID_*tauID_;}
 			if(muID_==0&&eleID_!=0) {legCorr*=eleID_*tauID_;}
-                        std::cout<<"Make Higgs Shape"<<std::endl;
+                        cout<<"Make Higgs Shape"<<endl;
 			//tmp= createHistogramAndShifts(dir_+"ggH120.root","ggH120",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			//tmp= createHistogramAndShifts(dir_+"ggH125.root","ggH125",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			//tmp= createHistogramAndShifts(dir_+"ggH130.root","ggH130",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			//tmp= createHistogramAndShifts(dir_+"vbfH120.root","qqH120",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			//tmp= createHistogramAndShifts(dir_+"vbfH125.root","qqH125",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			//tmp= createHistogramAndShifts(dir_+"vbfH130.root","qqH130",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
-                        std::cout<<"susyggH"<<std::endl;
+                        cout<<"susyggH"<<endl;
 
 			//tmp= createHistogramAndShifts(dir_+"susyggH_80.root","ggH80",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			//tmp= createHistogramAndShifts(dir_+"susyggH_90.root","ggH90",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
@@ -218,7 +220,7 @@ class DataCardCreatorHThTh_2016 {
 
 
 /*
-                        std::cout<<"susybbH"<<std::endl;
+                        cout<<"susybbH"<<endl;
 			tmp= createHistogramAndShifts(dir_+"susybbH_80.root","bbH80",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"susybbH_90.root","bbH90",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"susybbH_100.root","bbH100",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
@@ -250,110 +252,107 @@ class DataCardCreatorHThTh_2016 {
 			tmp= createHistogramAndShifts(dir_+"susybbH_3200.root","bbH3200",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 
 
-                        std::cout<<"Made Higgs Shape"<<std::endl;
 */
 		}
 
 
 		/*-------------Create Histograms------------------*/
 
-		BkgOutput runOSLSMT(std::string preSelection,std::string prefix,std::string zShape, float topExtrap) {
-                        std::cout<<"runOSLSMT"<<std::endl;
+		BkgOutput runOSLSMT(string preSelection,string prefix,string zShape, float topExtrap) {
+                        cout<<"runOSLSMT"<<endl;
 
 			BkgOutput output(0);    
 
 			float leg1Corr=1.0;
-			if(muID_!=0) leg1Corr*=muID_;
-			if(eleID_!=0) leg1Corr*=eleID_;
-
 			printf("Tau ID Scale Factor is %.3f \n",tauID_);
 
-                        std::cout<<"Create Data"<<std::endl;
-			std::cout<<"      Data Selection: "<<preSelection<<"&&"<<osSignalSelection_<<std::endl;
+                        cout<<"Create Data"<<endl;
+			cout<<"      Data Selection: "<<preSelection<<"&&"<<osSignalSelection_<<endl;
+			string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
 
-
-			std::pair<float,float> dataY         = createHistogramAndShifts(dataFile_,"data_obs","("+preSelection+"&&"+trigSelection50ns_+"&&"+osSignalSelection_+"&&"+blinding_+")",scaleUp_,prefix);
+			pair<float,float> dataY     = createHistogramAndShifts(dataFile_,"data_obs","("+fullSelection+"&&"+blinding_+")",scaleUp_,prefix);
 			output.DATA = dataY.first;
 
-
-                        std::cout<<"Create Top"<<std::endl;
+                        cout<<"Create Top"<<endl;
 			//Create ttbar
-			std::pair<float,float> topYield      = createHistogramAndShifts(topFile_,"TT",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_+"*"+TTweight_),luminosity_*leg1Corr*tauID_*topExtrap,prefix);
-			std::pair<float,float> topInflYield  = inflateError(topYield,topErr_);
-			printf("      TTbar events in signal region = %f + %f \n",topInflYield.first,topInflYield.second);
+
+			pair<float,float> topYield      = createHistogramAndShifts(topFile_,"TT",("("+fullSelection+")*"+weight_+"*"+TTweight_),luminosity_*leg1Corr*tauID_*topExtrap,prefix);
+			pair<float,float> topInflYield  = inflateError(topYield,topErr_);
+
 			output.TOP  = topInflYield.first;
 			output.dTOP = topInflYield.second;
 
-                        std::cout<<"Create VV"<<std::endl;
+                        cout<<"Create VV"<<endl;
 			//Create Diboson
-			std::pair<float,float> vvYield      = createHistogramAndShifts(vvFile_,"VV",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*leg1Corr*tauID_,prefix);
-			printf("      Diboson events before inflation = %f + %f \n",vvYield.first,vvYield.second);
-			std::pair<float,float> vvInflYield  = inflateError(vvYield,vvErr_);
-			printf("      Diboson events in signal region = %f + %f \n",vvInflYield.first,vvInflYield.second);
+			pair<float,float> vvYield      = createHistogramAndShifts(vvFile_,"VV",("("+fullSelection+")*"+weight_),luminosity_*leg1Corr*tauID_,prefix);
+			pair<float,float> vvInflYield  = inflateError(vvYield,vvErr_);
 			output.VV  = vvInflYield.first;
 			output.dVV = vvInflYield.second;
 
 
-                        std::cout<<"Create ZLFT"<<std::endl;
-                        std::cout<<"      Factor ZLFT: "<<zlftFactor_<<std::endl;
+                        cout<<"Create ZLFT"<<endl;
+                        cout<<"      Factor ZLFT: "<<zlftFactor_<<endl;
 			//Create ZL and ZJ
-			std::pair<float,float> zlftYield   = createHistogramAndShifts(zllFile_,"ZL",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+ZLFT_genLSel_+")*"+weight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
-			//std::pair<float,float> zlftYield   = createHistogramAndShifts(zllFile_,"ZL",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&genTaus==0&&((abs(pdg2)==13&&genPt2>8)||(abs(pdg2)==11&&genPt2>8)))*"+weight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
-			std::pair<float,float> zlftInflYield  = inflateError(zlftYield,zlftErr_);
-			printf("      Z (l->tau) in signal region = %f + %f \n",zlftInflYield.first,zlftInflYield.second);
+
+			pair<float,float> zlftYield   = createHistogramAndShifts(zllFile_,"ZL",("("+fullSelection+"&&"+ZLFT_genLSel_+")*"+weight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
+			pair<float,float> zlftInflYield  = inflateError(zlftYield,zlftErr_);
+
+
 			output.ZLFT  = zlftInflYield.first;
 			output.dZLFT = zlftInflYield.second;
 
+                        cout<<"Create ZJFT"<<endl;
+			pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&"+ZJFT_genLReject_+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			//pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&(!((genTaus==0&&abs(pdg2)==13&&genPt2>8)||(genTaus==0&&abs(pdg2)==11&&genPt2>8)||(genTaus>0&&genVisPt2>18))))*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			pair<float,float> zjftInflYield  = inflateError(zjftYield,zjftErr_);
 
-                        std::cout<<"Create ZJFT"<<std::endl;
-			std::pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJ",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+ZJFT_genLReject_+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
-			//std::pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJ",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&(!((genTaus==0&&abs(pdg2)==13&&genPt2>8)||(genTaus==0&&abs(pdg2)==11&&genPt2>8)||(genTaus>0&&genVisPt2>18))))*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
-			std::pair<float,float> zjftInflYield  = inflateError(zjftYield,zjftErr_);
-			printf("      Z (j->tau) in signal region = %f + %f \n",zjftInflYield.first,zjftInflYield.second);
 			output.ZJFT  = zjftInflYield.first;
 			output.dZJFT = zjftInflYield.second;
 
-                        std::cout<<"Create ZTT"<<std::endl;
+                        cout<<"Create ZTT"<<endl;
 			//Create Z-->tautau
 			/*
 			if(!runZTT(preSelection, prefix, zShape, topExtrap, output)){
-				std::cout<<"Error Creating Ztt"<<std::endl;
+				cout<<"Error Creating Ztt"<<endl;
 				return output;
 			 }
 			*/
-			std::pair<float,float> ZTT    = createHistogramAndShifts(zttFile_,"ZTT",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			pair<float,float> ZTT    = createHistogramAndShifts(zttFile_,"ZTT",("("+fullSelection+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
 
 
 			//Create W 
 			//In principle osSignalSelection should work as a dummy variable
-			std::cout<<"Create W"<<std::endl;
+			cout<<"Create W"<<endl;
 			/*
 			if(!runW(preSelection, prefix, zShape, topExtrap, output, "pt_1>-100", "pt_1>-100",wSelection_)){
-				std::cout<<"Error Creating W"<<std::endl;
+				cout<<"Error Creating W"<<endl;
 				return output;
 			}
 			*/
-			std::pair<float,float> W    = createHistogramAndShifts(zttFile_,"W",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*leg1Corr,prefix);    
+			pair<float,float> W    = createHistogramAndShifts(zttFile_,"W",("("+fullSelection+")*"+weight_),luminosity_*leg1Corr,prefix);    
 
-                        std::cout<<"Create QCD"<<std::endl;
+                        cout<<"Create QCD"<<endl;
 			//Create QCD
 			if(!runQCD(preSelection, prefix, zShape, topExtrap, output, "pt_1>-100", relaxedSelection_)){ //pt_1>-100 is the category Selection
-				std::cout<<"Error Creating QCD"<<std::endl;
+				cout<<"Error Creating QCD"<<endl;
 				return output;
 			}
+			printf("      TTbar events in signal region = %f + %f \n",topInflYield.first,topInflYield.second);
+			printf("      Diboson events before inflation = %f + %f \n",vvYield.first,vvYield.second);
+			printf("      Diboson events in signal region = %f + %f \n",vvInflYield.first,vvInflYield.second);
+			printf("      Z (l->tau) in signal region = %f + %f \n",zlftInflYield.first,zlftInflYield.second);
+			printf("      Z (j->tau) in signal region = %f + %f \n",zjftInflYield.first,zjftInflYield.second);
 
-
-			std::cout<<"=============Data Yields============="<<std::endl;
-			std::cout<<"DATA: "<< output.DATA<<std::endl;
-			std::cout<<std::endl;
-			std::cout<<"BKGD Yields "<<std::endl;
-			std::cout<<"QCD: "<< output.QCD<<std::endl;
-			std::cout<<"W: "<< output.W<<std::endl;
-			std::cout<<"TOP: "<< output.TOP<<std::endl;
-			std::cout<<"VV: "<< output.VV<<std::endl;
-			std::cout<<"ZLFT: "<< output.ZLFT<<std::endl;
-			std::cout<<"ZJFT: "<< output.ZJFT<<std::endl;
-			std::cout<<"ZTT: "<< output.ZTT<<std::endl;
+			cout<<"=============Data Yields============="<<endl;
+			cout<<"DATA: "<< output.DATA<<"==="<<endl;
+			cout<<"BKGD Yields ==="<<endl;
+			cout<<"QCD: "<< output.QCD<<endl;
+			cout<<"W: "<< output.W<<endl;
+			cout<<"TOP: "<< output.TOP<<endl;
+			cout<<"VV: "<< output.VV<<endl;
+			cout<<"ZLFT: "<< output.ZLFT<<endl;
+			cout<<"ZJFT: "<< output.ZJFT<<endl;
+			cout<<"ZTT: "<< output.ZTT<<endl;
 
 			//TODO: Check that this outputs the correct values
 			float background    = output.QCD  + output.W  + output.TOP  + output.VV  + output.ZLFT  + output.ZJFT  + output.ZTT;
@@ -395,14 +394,15 @@ class DataCardCreatorHThTh_2016 {
 		 *
 		 */
 
-		BkgOutput runFullExtrapBtag(std::string relaxedSelection, std::string wSel, std::string preSelection, std::string categorySelection_, std::string prefix, std::string zShape, float topExtrap, float zExtrap, float zExtrapErr, std::string bTagSF) {
+		BkgOutput runFullExtrapBtag(string relaxedSelection, string wSel, string preSelection, string categorySelection_, string prefix, string zShape, float topExtrap, float zExtrap, float zExtrapErr, string bTagSF) {
 
-			std::cout<<"======================"<<std::endl;
-                        std::cout<<"Run Full Extrapolation"<<std::endl;
-			std::cout<<"categorySelection: "<<categorySelection_<<std::endl;
+			cout<<"======================"<<endl;
+                        cout<<"Run Full Extrapolation"<<endl;
+			cout<<"categorySelection: "<<categorySelection_<<endl;
 			//TODO: Fix this category seleciton business, should be more elegant
-			std::string categorySelection = categorySelection_;
-			std::string dummySelection_   = osSignalSelection_;
+			string categorySelection = categorySelection_;
+			string dummySelection_   = osSignalSelection_;
+			string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
 
 			weight_ = weight_+"*"+bTagSF;
 
@@ -414,34 +414,34 @@ class DataCardCreatorHThTh_2016 {
 
 			printf("Tau ID Scale Factor is %.3f \n",tauID_);
 
-			std::cout<<"Select DATA"<<std::endl;
-			std::pair<float,float> dataY         = createHistogramAndShifts(dataFile_,"data_obs","("+preSelection+"&&"+trigSelection50ns_+"&&"+osSignalSelection_+"&&"+categorySelection+")",scaleUp_,prefix);
+			cout<<"Select DATA"<<endl;
+			pair<float,float> dataY         = createHistogramAndShifts(dataFile_,"data_obs","("+fullSelection+"&&"+categorySelection+")",scaleUp_,prefix);
 			output.DATA = dataY.first;
-			std::cout<<"      DATA Yield: "<< output.DATA<<std::endl;
-			std::cout<<"      DATA Selection: "<<preSelection<<"&&"<<trigSelection50ns_<<"&&"<<osSignalSelection_<<"&&"<<categorySelection<<std::endl; 
+			cout<<"      DATA Yield: "<< output.DATA<<endl;
+			cout<<"      DATA Selection: "<<preSelection<<"&&"<<trigSelection_<<"&&"<<osSignalSelection_<<"&&"<<categorySelection<<endl; 
 
 
 
-                        std::cout<<"Create DiBoson"<<std::endl;
+                        cout<<"Create DiBoson"<<endl;
 			//Create Diboson
-			std::pair<float,float> vvYield      = createHistogramAndShifts(vvFile_,"VV",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+")*"+weight_),luminosity_*leg1Corr*tauID_,prefix);
-			std::cout<<"      VV before error inflation: "<<vvYield.first<<std::endl;
-			std::pair<float,float> vvInflYield  = inflateError(vvYield,vvErr_);
+			pair<float,float> vvYield      = createHistogramAndShifts(vvFile_,"VV",("("+fullSelection+"&&"+categorySelection+")*"+weight_),luminosity_*leg1Corr*tauID_,prefix);
+			cout<<"      VV before error inflation: "<<vvYield.first<<endl;
+			pair<float,float> vvInflYield  = inflateError(vvYield,vvErr_);
 			printf("      Diboson events in signal region = %f + %f \n",vvInflYield.first,vvInflYield.second);
-			std::cout<<"      VV after error inflation: "<<vvInflYield.first<<std::endl;
+			cout<<"      VV after error inflation: "<<vvInflYield.first<<endl;
 			output.VV  = vvInflYield.first;
 			output.dVV = vvInflYield.second;
 
 			//Create ZL and ZJ
 
-                        std::cout<<"Create ZLFT"<<std::endl;
+                        cout<<"Create ZLFT"<<endl;
 			//ZL Yield
-			std::pair<float,float> zlftYield   = createHistogramAndShifts(zllFile_,"ZLTmp",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection_+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
+			pair<float,float> zlftYield   = createHistogramAndShifts(zllFile_,"ZLTmp",("("+fullSelection+"&&"+categorySelection_+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
 			//ZLShape
-			//std::pair<float,float> zlftShape   = createHistogramAndShifts(zllFile_,"ZL",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+relaxedSelection+"&&"+ZLFT_genLSel_+")*"+weight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
-			std::pair<float,float> zlftShape   = createHistogramAndShifts(zllFile_,"ZL",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
+			//pair<float,float> zlftShape   = createHistogramAndShifts(zllFile_,"ZL",("("+fullSelection+"&&"+relaxedSelection+"&&"+ZLFT_genLSel_+")*"+weight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
+			pair<float,float> zlftShape   = createHistogramAndShifts(zllFile_,"ZL",("("+fullSelection+"&&"+categorySelection+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
 
-			std::pair<float,float> zlftInflYield  = inflateError(zlftYield,zlftErr_);
+			pair<float,float> zlftInflYield  = inflateError(zlftYield,zlftErr_);
 			printf("      Z (l->tau) in signal region = %f + %f \n",zlftInflYield.first,zlftInflYield.second);
 
 			renormalizeHistogram(filelabel_+prefix,"ZL",zlftInflYield.first);
@@ -449,75 +449,77 @@ class DataCardCreatorHThTh_2016 {
 			output.dZLFT  = zlftInflYield.second;
 
 			if(shifts_.size()>0&&channel_=="eleTau"){
-				std::pair<float,float> zlShiftUp      = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_etau_13TeVUp",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection_+"&&abs(pdg2)==11&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"1.02",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
-				std::pair<float,float> zlShiftDown     = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_etau_13TeVDown",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection_+"&&abs(pdg2)==11&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"0.98",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
+				pair<float,float> zlShiftUp      = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_etau_13TeVUp",("("+fullSelection+"&&"+categorySelection_+"&&abs(pdg2)==11&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"1.02",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
+				pair<float,float> zlShiftDown     = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_etau_13TeVDown",("("+fullSelection+"&&"+categorySelection_+"&&abs(pdg2)==11&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"0.98",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
 			}
 			else if(shifts_.size()>0&&channel_=="muTau"){
-				std::pair<float,float> zlShiftUp      = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_mutau_13TeVUp",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection_+"&&abs(pdg2)==13&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"1.02",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
-				std::pair<float,float> zlShiftDown     = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_mutau_13TeVDown",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection_+"&&abs(pdg2)==13&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"0.98",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
+				pair<float,float> zlShiftUp      = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_mutau_13TeVUp",("("+fullSelection+"&&"+categorySelection_+"&&abs(pdg2)==13&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"1.02",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
+				pair<float,float> zlShiftDown     = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_mutau_13TeVDown",("("+fullSelection+"&&"+categorySelection_+"&&abs(pdg2)==13&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"0.98",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
 			}
 
-                        std::cout<<"Create ZJFT"<<std::endl;
+                        cout<<"Create ZJFT"<<endl;
 			//ZJ Yield
-			std::pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJTmp",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection_+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJTmp",("("+fullSelection+"&&"+categorySelection_+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);    
 
 			//ZJ Shape
-			//std::pair<float,float> zjftShape      = createHistogramAndShifts(zllFile_,"ZJ",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+relaxedSelection+"&&"+ZJFT_genLReject_+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
-			std::pair<float,float> zjftShape      = createHistogramAndShifts(zllFile_,"ZJ",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			//pair<float,float> zjftShape      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&"+relaxedSelection+"&&"+ZJFT_genLReject_+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			pair<float,float> zjftShape      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&"+categorySelection+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);    
 
-			std::pair<float,float> zjftInflYield  = inflateError(zjftYield,zjftErr_);
+			pair<float,float> zjftInflYield  = inflateError(zjftYield,zjftErr_);
 			printf("      Z (j->tau) in signal region = %f + %f \n",zjftInflYield.first,zjftInflYield.second);
 			renormalizeHistogram(filelabel_+prefix,"ZJ",zjftInflYield.first);
 			output.ZJFT  = zjftInflYield.first;
 			output.dZJFT = zjftInflYield.second;
 
-                        std::cout<<"Create ZTT"<<std::endl;
+                        cout<<"Create ZTT"<<endl;
 			//TODO: Check me, previous Btag ZTT shape correction had a special normalization method
 			if(!runZTT(preSelection, prefix, zShape, topExtrap, output, categorySelection)){
-				std::cout<<"Error Creating Ztt"<<std::endl;
+				cout<<"Error Creating Ztt"<<endl;
 				return output;
 			}
 
-                        std::cout<<"Create TOP"<<std::endl;
+                        cout<<"Create TOP"<<endl;
 			//Create ttbar
 			//Last argument is a dummy argument
 			if(!runTOP(preSelection, prefix, zShape, topExtrap, output, categorySelection, relaxedSelection)){
-				std::cout<<"Error Creating TOP"<<std::endl;
+				cout<<"Error Creating TOP"<<endl;
 				return output;
 			}
 
 
-                        std::cout<<"Create W"<<std::endl;
+                        cout<<"Create W"<<endl;
 			//Create W
+			/*
 			if(!runW(preSelection, prefix, zShape, topExtrap, output, categorySelection, relaxedSelection, wSel)){
-				std::cout<<"Error Creating W"<<std::endl;
+				cout<<"Error Creating W"<<endl;
 				return output;
-			}
+				}
+			*/
 
-                        std::cout<<"Create QCD"<<std::endl;
+                        cout<<"Create QCD"<<endl;
 			//Create QCD
 			if(!runQCD(preSelection, prefix, zShape, topExtrap, output, categorySelection, relaxedSelection)){
-				std::cout<<"Error Creating QCD"<<std::endl;
+				cout<<"Error Creating QCD"<<endl;
 				return output;
 			}
 
 
 
-			std::cout<<std::endl;
-			std::cout<<"=============Data Yields============="<<std::endl;
-			std::cout<<"DATA: "<< output.DATA<<std::endl;
-			std::cout<<std::endl;
+			cout<<endl;
+			cout<<"=============Data Yields============="<<endl;
+			cout<<"DATA: "<< output.DATA<<endl;
+			cout<<endl;
 	
 
-			std::cout<<std::endl;
-			std::cout<<"BKGD Yields "<<std::endl;
-			std::cout<<"QCD: "<< output.QCD<<std::endl;
-			std::cout<<"W: "<< output.W<<std::endl;
-			std::cout<<"TOP: "<< output.TOP<<std::endl;
-			std::cout<<"VV: "<< output.VV<<std::endl;
-			std::cout<<"ZLFT: "<< output.ZLFT<<std::endl;
-			std::cout<<"ZJFT: "<< output.ZJFT<<std::endl;
-			std::cout<<"ZTT: "<< output.ZTT<<std::endl;
+			cout<<endl;
+			cout<<"BKGD Yields "<<endl;
+			cout<<"QCD: "<< output.QCD<<endl;
+			cout<<"W: "<< output.W<<endl;
+			cout<<"TOP: "<< output.TOP<<endl;
+			cout<<"VV: "<< output.VV<<endl;
+			cout<<"ZLFT: "<< output.ZLFT<<endl;
+			cout<<"ZJFT: "<< output.ZJFT<<endl;
+			cout<<"ZTT: "<< output.ZTT<<endl;
 
 
 			float background    = output.QCD  + output.W  + output.TOP  + output.VV  + output.ZLFT  + output.ZJFT  + output.ZTT;
@@ -572,19 +574,18 @@ class DataCardCreatorHThTh_2016 {
 		 * ZttCategoryYield = ZttMCInclusiveYield * (ZttEmbedded_Category) / *Ztt(
 		 */
 
-		bool runZTT(std::string preSelection,std::string prefix,std::string zShape, float topExtrap, BkgOutput &output,
-				std::string categorySelection = "pt_1>-100", std::string relaxedSelection = "pt_1>-100"){
+		bool runZTT(string preSelection,string prefix,string zShape, float topExtrap, BkgOutput &output,
+				string categorySelection = "pt_1>-100", string relaxedSelection = "pt_1>-100"){
 
 			float leg1Corr=1.0;
-			if(muID_!=0) leg1Corr*=muID_;
-			if(eleID_!=0) leg1Corr*=eleID_;
 
+			string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
 
-			std::pair<float,float> ztt  = createHistogramAndShifts(zttFile_,"ZTT",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+Zweight_),luminosity_*zttScale_*leg1Corr*tauID_,prefix);
-			std::pair<float,float> zttDyUp  = createHistogramAndShifts(zttFile_,"ZTT_CMS_htt_dyShape_13TeVUp",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+Zweight_+"*"+Zweight_),luminosity_*zttScale_*leg1Corr*tauID_,prefix);
-			std::pair<float,float> zttDyDown  = createHistogramAndShifts(zttFile_,"ZTT_CMS_htt_dyShape_13TeVDown",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+"&&"+ZTT_genTauSel_+")*"+weight_),luminosity_*zttScale_*leg1Corr*tauID_,prefix);
+			pair<float,float> ztt  = createHistogramAndShifts(zttFile_,"ZTT",("("+fullSelection+"&&"+categorySelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+Zweight_),luminosity_*zttScale_*leg1Corr*tauID_,prefix);
+			pair<float,float> zttDyUp  = createHistogramAndShifts(zttFile_,"ZTT_CMS_htt_dyShape_13TeVUp",("("+fullSelection+"&&"+categorySelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+Zweight_+"*"+Zweight_),luminosity_*zttScale_*leg1Corr*tauID_,prefix);
+			pair<float,float> zttDyDown  = createHistogramAndShifts(zttFile_,"ZTT_CMS_htt_dyShape_13TeVDown",("("+fullSelection+"&&"+categorySelection+"&&"+ZTT_genTauSel_+")*"+weight_),luminosity_*zttScale_*leg1Corr*tauID_,prefix);
 
-			std::cout<<"      ZTT Selection: "<<preSelection<<"&&"<<trigSelection_<<"&&"<<osSignalSelection_<<"&&"<<categorySelection<<std::endl;
+			cout<<"      ZTT Selection: "<<preSelection<<"&&"<<trigSelection_<<"&&"<<osSignalSelection_<<"&&"<<categorySelection<<endl;
 			output.ZTT  = ztt.first;
 			output.dZTT = ztt.second;
 
@@ -593,22 +594,21 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		bool runTOP( std::string preSelection, std::string prefix, std::string zShape, float topExtrap, BkgOutput &output, 
-				std::string categorySelection, std::string relaxedSelection ) {
+		bool runTOP( string preSelection, string prefix, string zShape, float topExtrap, BkgOutput &output, 
+				string categorySelection, string relaxedSelection ) {
 
 
 			float leg1Corr=1.0;
-			if(muID_!=0) leg1Corr*=muID_;
-			if(eleID_!=0) leg1Corr*=eleID_;
+			string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
 
-			std::pair<float,float> topShape      = createHistogramAndShifts(topFile_,"TT",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+TTweight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
-			std::pair<float,float> topShapeUp      = createHistogramAndShifts(topFile_,"TT_CMS_htt_ttbarShape_13TeVUp",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+TTweight_+"*"+TTweight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
-			std::pair<float,float> topShapeDown      = createHistogramAndShifts(topFile_,"TT_CMS_htt_ttbarShape_13TeVDown",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+")*"+weight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
+			pair<float,float> topShape      = createHistogramAndShifts(topFile_,"TT",("("+fullSelection+"&&"+categorySelection+")*"+weight_+"*"+TTweight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
+			pair<float,float> topShapeUp      = createHistogramAndShifts(topFile_,"TT_CMS_htt_ttbarShape_13TeVUp",("("+fullSelection+"&&"+categorySelection+")*"+weight_+"*"+TTweight_+"*"+TTweight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
+			pair<float,float> topShapeDown      = createHistogramAndShifts(topFile_,"TT_CMS_htt_ttbarShape_13TeVDown",("("+fullSelection+"&&"+categorySelection+")*"+weight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
 
-			std::pair<float,float> topYield      = createHistogramAndShifts(topFile_,"TTYield",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+TTweight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
+			pair<float,float> topYield      = createHistogramAndShifts(topFile_,"TTYield",("("+fullSelection+"&&"+categorySelection+")*"+weight_+"*"+TTweight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
 
 
-			std::pair<float,float> topInflYield  = inflateError(topYield,topErr_);
+			pair<float,float> topInflYield  = inflateError(topYield,topErr_);
 
 			output.TOP  = topInflYield.first;
 			output.dTOP = topInflYield.second;
@@ -625,97 +625,34 @@ class DataCardCreatorHThTh_2016 {
 
 
 
-		bool runQCD(std::string preSelection, std::string prefix, std::string zShape, float topExtrap, BkgOutput &output, std::string categorySelection, std::string relaxedSelection) 
+		bool runQCD(string preSelection, string prefix, string zShape, float topExtrap, BkgOutput &output, string categorySelection, string relaxedSelection) 
 		{
 			float leg1Corr=1.0;
-			if(muID_!=0) leg1Corr*=muID_;
-			if(eleID_!=0) leg1Corr*=eleID_;
 			
-			std::cout<<"QCD Selections= "<<"("<<preSelection_<<"&&"<<trigSelection50ns_<<"&&"<<ssSignalSelection_<<"&&"<<categorySelection<<")"<<std::endl;
-			std::pair<float,float> dataQCD = createHistogramAndShifts(dataFile_,"QCD","("+preSelection+"&&"+trigSelection50ns_+"&&"+ssSignalSelection_+"&&"+categorySelection+")",scaleUp_,prefix); 
+			cout<<"QCD Selections= "<<"("<<preSelection_<<"&&"<<trigSelection_<<"&&"<<ssSignalSelection_<<"&&"<<categorySelection<<")"<<endl;
+
+			pair<float,float> dataQCD = createHistogramAndShifts(dataFile_,"QCD","("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")",scaleUp_,prefix); 
 			printf("      Data events in SS Signal QCD sideband region = %f + %f \n",dataQCD.first,dataQCD.second);
-			std::pair<float,float> ZQCD = createHistogramAndShifts(zttFile_,"ZQCD","("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+Zweight_,luminosity_,prefix); 
+			pair<float,float> ZQCD = createHistogramAndShifts(zttFile_,"ZQCD","("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+Zweight_,luminosity_,prefix); 
 			printf("      Z events in SS Signal QCD sideband region = %f + %f \n",ZQCD.first,ZQCD.second);
-			std::pair<float,float> TopQCD = createHistogramAndShifts(topFile_,"TopQCD","("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+TTweight_,luminosity_,prefix); 
+			pair<float,float> TopQCD = createHistogramAndShifts(topFile_,"TopQCD","("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+TTweight_,luminosity_,prefix); 
 			printf("      TOP events in SS Signal QCD sideband region = %f + %f \n",TopQCD.first,TopQCD.second);
-			std::pair<float,float> VVQCD       = createHistogramAndShifts(vvFile_,"VVQCD",("("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
+			pair<float,float> VVQCD       = createHistogramAndShifts(vvFile_,"VVQCD",("("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
 			printf("      VV events in SS Signal QCD sideband region = %f + %f \n",VVQCD.first,VVQCD.second);
 
-			std::pair<float,float> ssWLow       = createHistogramAndShifts(wFile_,"WQCD",("("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_),luminosity_*leg1Corr,prefix,false);
+			pair<float,float> WQCD       = createHistogramAndShifts(wFile_,"WQCD",("("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_),luminosity_*leg1Corr,prefix,false);
+			/*
 			printf("      (MonteCarlo) W events in SS region = %f + %f \n",ssWLow.first,ssWLow.second);
 
-
-			/* DATA DRIVEN W
-			 *  
-			 * OS W Low MT = R_W * SS_W * highMt->lowMt 
-			 * so SS W Low Mt = SS_W * highMt->lowMt
-			 * R_W = OS/SS (no Mt cut)
-			 * SS_W MT>70 = [OS - OS_MCBKG - R_QCD*(SS - SS_MCBKG) ]
-			 *         _______________________________________
-			 * 			(R_W - R_QCD) 
-			 *
-			 * highMtlowMt per category
-			 */
-
-			std::pair<float,float> Rw = extractRFactor(wFile_,preSelection+"&&"+categorySelection,prefix);
-			printf("       QCD:   R_W = %f +- %f\n",Rw.first,Rw.second);
-			//
-
-			printf("      2. Find QCD in SS sideband \n");
-			std::pair<float,float> dataSSQCDSdb     = createHistogramAndShifts(dataFile_,"data_ss_sdb","("+preSelection+"&&"+trigSelection50ns_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSelection_+")",scaleUp_,prefix);
-			std::pair<float,float> topSSQCDSdb      = createHistogramAndShifts(topFile_,"TT_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSelection_+")*"+weight_+"*"+TTweight_),luminosity_*tauID_*topExtrap,prefix);
-			std::pair<float,float> vvSSQCDSdb       = createHistogramAndShifts(vvFile_,"VV_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSelection_+")*"+weight_),luminosity_*tauID_,prefix);
-			std::pair<float,float> zSSQCDSdb      = createHistogramAndShifts(zttFile_,"Z_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSelection_+")*"+weight_+"*"+Zweight_),luminosity_*tauID_,prefix);
-			std::pair<float,float> wQCDSSQCDSdb		= std::make_pair(TMath::Nint(dataSSQCDSdb.first-topSSQCDSdb.first-vvSSQCDSdb.first-zSSQCDSdb.first),
-					sqrt(dataSSQCDSdb.second*dataSSQCDSdb.second+topSSQCDSdb.second*topSSQCDSdb.second+vvSSQCDSdb.second*vvSSQCDSdb.second+zSSQCDSdb.second*zSSQCDSdb.second));
-			std::pair<float,float> wQCDOSSdb = std::make_pair(wQCDSSQCDSdb.first*qcdFactor_,wQCDSSQCDSdb.second*qcdFactor_);
-
-
-			std::pair<float,float> dataSdb     = createHistogramAndShifts(dataFile_,"data_os_sdb","("+preSelection+"&&"+trigSelection50ns_+"&&"+categorySelection+"&&"+charge_+"&&"+wSelection_+")",scaleUp_,prefix);
-			std::pair<float,float> topSdb      = createHistogramAndShifts(topFile_,"TT_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSelection_+")*"+weight_+"*"+TTweight_),luminosity_*tauID_*topExtrap,prefix);
-			std::pair<float,float> vvSdb      = createHistogramAndShifts(vvFile_,"VV_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSelection_+")*"+weight_),luminosity_*tauID_,prefix);
-			std::pair<float,float> zSdb      = createHistogramAndShifts(zttFile_,"Z_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSelection_+")*"+weight_+"*"+Zweight_),luminosity_*tauID_,prefix);
-
-			std::pair<float,float> osWHigh = std::make_pair(TMath::Nint(dataSdb.first-topSdb.first-vvSdb.first-zSdb.first),
-					sqrt(dataSdb.second*dataSdb.second+topSdb.second*topSdb.second+vvSdb.second*vvSdb.second+zSdb.second*zSdb.second+wQCDOSSdb.second*wQCDOSSdb.second));
-
-			printf("          qcd in W Sdb = %f +- %f\n",wQCDOSSdb.first,wQCDOSSdb.second);
-
-			std::pair<float,float> ssWHigh = std::make_pair(osWHigh.first/(Rw.first-qcdFactor_),osWHigh.second*Rw.second);
-
-			printf("          dataWSdb = %f +- %f\n",dataSdb.first,dataSdb.second);
-			printf("        - topWSdb = %f +- %f\n",topSdb.first,topSdb.second);
-			printf("        - vvWSdb = %f +- %f\n",vvSdb.first,vvSdb.second);
-			printf("        - zSdb = %f +- %f\n",zSdb.first,zSdb.second);
-			printf("        - wQCDSdb = %f +- %f\n",wQCDOSSdb.first,wQCDOSSdb.second);
-			printf("        = osWHigh = %f \n",osWHigh.first);
-			printf("          Same Sign ssWHigh = %f = %f /( %f - %f) \n",ssWHigh.first,osWHigh.first,Rw.first,qcdFactor_);
-
-
-			printf("      4. Extrapolate W in the low MT region\n");
-			//std::pair<float,float> wFactor = extractWFactor(wFile_,preSelection+"&&"+trigSelection_+"&&"+categorySelection,prefix,charge_+"&&"+wSel,osSignalSelection_);
-			std::pair<float,float> wFactor = extractWFactorFinal(wFile_,preSelection+"&&"+trigSelection_+"&&"+categorySelection,prefix);
-			printf("          W extrapolation factor as measured in category MC = %f +- %f\n",wFactor.first,wFactor.second);
-
-			std::pair<float,float> ssWLowDD = std::make_pair(ssWHigh.first*wFactor.first,
-					sqrt(ssWHigh.first*ssWHigh.first*wFactor.second*wFactor.second+ssWHigh.second*ssWHigh.second*wFactor.first*wFactor.first));
-
-
-			renormalizeHistogram(filelabel_+prefix,"WQCD",ssWLowDD.first);
-
-
-			/*
-			 * DATADRIVEN W FOUND 
-			 */
-
 			//Now subtracting off bkgd shapes from data ss shape
+
 			subtractHistogram(filelabel_+prefix,"QCD","ZQCD");
 			subtractHistogram(filelabel_+prefix,"QCD","VVQCD");
 			subtractHistogram(filelabel_+prefix,"QCD","TopQCD");
 			subtractHistogram(filelabel_+prefix,"QCD","WQCD");
 
-			std::pair<float,float> ssQCD = std::make_pair(TMath::Nint(dataQCD.first
-						-ssWLowDD.first
+			pair<float,float> ssQCD = make_pair(TMath::Nint(dataQCD.first
+									//-ssWLowDD.first
 						-TopQCD.first
 						-VVQCD.first
 						-ZQCD.first),
@@ -741,10 +678,6 @@ class DataCardCreatorHThTh_2016 {
 					ssQCD.second);
 
 
-			printf("5. Extrapolate SS QCD -> OS QCD \n");
-			std::pair<float,float> osQCD = std::make_pair(ssQCD.first*qcdFactor_,
-					sqrt(ssQCD.second*ssQCD.second*qcdFactor_*qcdFactor_
-						+qcdFactorErr_*qcdFactorErr_*ssQCD.first*ssQCD.first));
 
 			//Now Renormalize
 			renormalizeHistogram(filelabel_+prefix,"QCD",osQCD.first);
@@ -753,7 +686,7 @@ class DataCardCreatorHThTh_2016 {
 
 			output.QCD  = osQCD.first;    
 			output.dQCD = osQCD.second;
-
+			*/
 			if(shifts_.size()>0){
 				qcdSyst(filelabel_, prefix, "QCD", 1.1, 0.1);
 			}
@@ -774,44 +707,44 @@ class DataCardCreatorHThTh_2016 {
 		 * highMtlowMt per category
 		 */
 
-		bool runW(std::string preSelection,std::string prefix,std::string zShape, float topExtrap, BkgOutput &output, std::string categorySelection, std::string relaxedSelection, std::string wSel) {
+		bool runW(string preSelection,string prefix,string zShape, float topExtrap, BkgOutput &output, string categorySelection, string relaxedSelection, string wSel) {
 
-
-			std::pair<float,float> Rw = extractRFactor(wFile_,preSelection+"&&"+categorySelection,prefix);
+		        string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
+			pair<float,float> Rw = extractRFactor(wFile_,preSelection+"&&"+categorySelection,prefix);
 
 			printf("          R_W = %f +- %f\n",Rw.first,Rw.second);
 			//WShape is relaxed
-			std::pair<float,float> wShape         = createHistogramAndShifts(wFile_,"W",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+relaxedSelection+")*"+weight_),luminosity_,prefix,false);
-			std::cout<<"Relaxed Selection: "<<relaxedSelection<<std::endl;
-			std::pair<float,float> wYield         = createHistogramAndShifts(wFile_,"WYield",("("+preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
-			std::cout<<"Straight W MC Yield: "<<wYield.first<<" stat error:" <<wYield.second<<std::endl;
-			std::cout<<"Straight W MC Yield: "<<preSelection+"&&"<<trigSelection_<<"&&"<<categorySelection<<"&&"<<osSignalSelection_<<std::endl; 
+			pair<float,float> wShape         = createHistogramAndShifts(wFile_,"W",("("+fullSelection+"&&"+relaxedSelection+")*"+weight_),luminosity_,prefix,false);
+			cout<<"Relaxed Selection: "<<relaxedSelection<<endl;
+			pair<float,float> wYield         = createHistogramAndShifts(wFile_,"WYield",("("+fullSelection+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
+			cout<<"Straight W MC Yield: "<<wYield.first<<" stat error:" <<wYield.second<<endl;
+			cout<<"Straight W MC Yield: "<<preSelection+"&&"<<trigSelection_<<"&&"<<categorySelection<<"&&"<<osSignalSelection_<<endl; 
 
 
-			std::pair<float,float> dataSdb     = createHistogramAndShifts(dataFile_,"data_os_sdb","("+preSelection+"&&"+trigSelection50ns_+"&&"+categorySelection+"&&"+charge_+"&&"+wSel+")",scaleUp_,prefix);
+			pair<float,float> dataSdb     = createHistogramAndShifts(dataFile_,"data_os_sdb","("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSel+")",scaleUp_,prefix);
 			printf("      1. Select OS high MT W sideband in data: %f +- %f \n",dataSdb.first,dataSdb.second);
-			std::pair<float,float> topSdb      = createHistogramAndShifts(topFile_,"TT_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSel+")*"+weight_+"*"+TTweight_),luminosity_*tauID_*topExtrap,prefix);
-			std::pair<float,float> vvSdb      = createHistogramAndShifts(vvFile_,"VV_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSel+")*"+weight_),luminosity_*tauID_,prefix);
-			std::pair<float,float> zSdb      = createHistogramAndShifts(zttFile_,"Z_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSel+")*"+weight_+"*"+Zweight_),luminosity_*tauID_,prefix);
+			pair<float,float> topSdb      = createHistogramAndShifts(topFile_,"TT_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSel+")*"+weight_+"*"+TTweight_),luminosity_*tauID_*topExtrap,prefix);
+			pair<float,float> vvSdb      = createHistogramAndShifts(vvFile_,"VV_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSel+")*"+weight_),luminosity_*tauID_,prefix);
+			pair<float,float> zSdb      = createHistogramAndShifts(zttFile_,"Z_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+charge_+"&&"+wSel+")*"+weight_+"*"+Zweight_),luminosity_*tauID_,prefix);
 
 			printf("      2. Find QCD in SS sideband \n");
-			std::pair<float,float> dataSSQCDSdb     = createHistogramAndShifts(dataFile_,"data_ss_sdb","("+preSelection+"&&"+trigSelection50ns_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSel+")",scaleUp_,prefix);
-			std::pair<float,float> topSSQCDSdb      = createHistogramAndShifts(topFile_,"TT_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSel+")*"+weight_+"*"+TTweight_),luminosity_*tauID_*topExtrap,prefix);
-			std::pair<float,float> vvSSQCDSdb       = createHistogramAndShifts(vvFile_,"VV_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSel+")*"+weight_),luminosity_*tauID_,prefix);
-			std::pair<float,float> zSSQCDSdb      = createHistogramAndShifts(zttFile_,"Z_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSel+")*"+weight_+"*"+Zweight_),luminosity_*tauID_,prefix);
-			std::pair<float,float> wQCDSSQCDSdb		= std::make_pair(TMath::Nint(dataSSQCDSdb.first-topSSQCDSdb.first-vvSSQCDSdb.first-zSSQCDSdb.first),
+			pair<float,float> dataSSQCDSdb     = createHistogramAndShifts(dataFile_,"data_ss_sdb","("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSel+")",scaleUp_,prefix);
+			pair<float,float> topSSQCDSdb      = createHistogramAndShifts(topFile_,"TT_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSel+")*"+weight_+"*"+TTweight_),luminosity_*tauID_*topExtrap,prefix);
+			pair<float,float> vvSSQCDSdb       = createHistogramAndShifts(vvFile_,"VV_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSel+")*"+weight_),luminosity_*tauID_,prefix);
+			pair<float,float> zSSQCDSdb      = createHistogramAndShifts(zttFile_,"Z_SS_SDB",("("+preSelection+"&&"+trigSelection_+"&&"+categorySelection+"&&"+"charge!=0"+"&&"+wSel+")*"+weight_+"*"+Zweight_),luminosity_*tauID_,prefix);
+			pair<float,float> wQCDSSQCDSdb		= make_pair(TMath::Nint(dataSSQCDSdb.first-topSSQCDSdb.first-vvSSQCDSdb.first-zSSQCDSdb.first),
 					sqrt(dataSSQCDSdb.second*dataSSQCDSdb.second+topSSQCDSdb.second*topSSQCDSdb.second+vvSSQCDSdb.second*vvSSQCDSdb.second+zSSQCDSdb.second*zSSQCDSdb.second));
-			std::pair<float,float> wQCDOSSdb = std::make_pair(wQCDSSQCDSdb.first*qcdFactor_,wQCDSSQCDSdb.second*qcdFactor_);
+			pair<float,float> wQCDOSSdb = make_pair(wQCDSSQCDSdb.first*qcdFactor_,wQCDSSQCDSdb.second*qcdFactor_);
 
 
 			printf("          qcd in W Sdb = %f +- %f\n",wQCDOSSdb.first,wQCDOSSdb.second);
 
 
 			printf("      3. Subtract TTbar and diboson and ZJets and (datadriven) QCD from sideband \n");
-			std::pair<float,float> osWHigh = std::make_pair(TMath::Nint(dataSdb.first-topSdb.first-vvSdb.first-zSdb.first-wQCDOSSdb.first),
+			pair<float,float> osWHigh = make_pair(TMath::Nint(dataSdb.first-topSdb.first-vvSdb.first-zSdb.first-wQCDOSSdb.first),
 					sqrt(dataSdb.second*dataSdb.second+topSdb.second*topSdb.second+vvSdb.second*vvSdb.second+zSdb.second*zSdb.second+wQCDOSSdb.second*wQCDOSSdb.second));
 
-			std::pair<float,float> ssWHigh = std::make_pair(osWHigh.first/(Rw.first-qcdFactor_),osWHigh.second*Rw.second);
+			pair<float,float> ssWHigh = make_pair(osWHigh.first/(Rw.first-qcdFactor_),osWHigh.second*Rw.second);
 
 			printf("          dataWSdb = %f +- %f\n",dataSdb.first,dataSdb.second);
 			printf("        - topWSdb = %f +- %f\n",topSdb.first,topSdb.second);
@@ -823,11 +756,11 @@ class DataCardCreatorHThTh_2016 {
 
 
 			printf("      4. Extrapolate W in the low MT region\n");
-			std::pair<float,float> wFactor = extractWFactor(wFile_,preSelection+"&&"+trigSelection_+"&&"+categorySelection,prefix,charge_+"&&"+wSel,osSignalSelection_);
-			//std::pair<float,float> wFactor = extractWFactorFinal(wFile_,preSelection+"&&"+trigSelection_+"&&"+categorySelection,prefix);
+			pair<float,float> wFactor = extractWFactor(wFile_,preSelection+"&&"+trigSelection_+"&&"+categorySelection,prefix,charge_+"&&"+wSel,osSignalSelection_);
+			//pair<float,float> wFactor = extractWFactorFinal(wFile_,preSelection+"&&"+trigSelection_+"&&"+categorySelection,prefix);
 			printf("          W extrapolation factor as measured in category MC = %f +- %f\n",wFactor.first,wFactor.second);
 
-			std::pair<float,float> osWLow = std::make_pair(Rw.first*ssWHigh.first*wFactor.first,
+			pair<float,float> osWLow = make_pair(Rw.first*ssWHigh.first*wFactor.first,
 					sqrt(Rw.first*Rw.first+ssWHigh.first*ssWHigh.first*wFactor.second*wFactor.second+ssWHigh.second*ssWHigh.second*wFactor.first*wFactor.first));
 
 			printf("          OS W  in core  =%f *%f*%f  = %f +- %f \n",ssWHigh.first,Rw.first, wFactor.first,osWLow.first,osWLow.second);
@@ -842,9 +775,9 @@ class DataCardCreatorHThTh_2016 {
 		}
 		//-------------Helper Functions------------------
 
-		void addHistogramZTT(std::string folder, std::string histo1, std::string histo2)
+		void addHistogramZTT(string folder, string histo1, string histo2)
 		{
-			std::cout<<"In AddHistogramZTT"<<std::endl;
+			cout<<"In AddHistogramZTT"<<endl;
 			addHistogram(folder,histo1,histo2);
 			for(unsigned int i=0;i<shifts_.size();++i) {
 				TH1F * h1 =(TH1F*) fout_->Get((folder+"/"+histo1+"_"+shiftsPostFix_[i]+"Up").c_str());
@@ -870,13 +803,13 @@ class DataCardCreatorHThTh_2016 {
 
 		}//end addHistogram ZTT
 
-		std::pair<float,float> createHistogramAndShifts(std::string file,std::string name, std::string cut,float scaleFactor = 1, std::string postfix = "",bool normUC  = true, bool keys=false,bool ShapeUncertainty=true) {
+		pair<float,float> createHistogramAndShifts(string file,string name, string cut,float scaleFactor = 1, string postfix = "",bool normUC  = true, bool keys=false,bool ShapeUncertainty=true) {
 			TFile *f  = new TFile(file.c_str());
 			if(f==0) printf("Not file Found\n");
 			//get the nominal tree first
 			TTree *t= (TTree*)f->Get((channel_+"EventTree/eventTree").c_str());
 			if(t==0) printf("Not Tree Found in file %s\n",file.c_str());
-			std::pair<float,float> yield;
+			pair<float,float> yield;
 
 			if(!keys)
 				yield =makeHistogram(t,filelabel_+postfix,name,cut,scaleFactor);
@@ -884,7 +817,7 @@ class DataCardCreatorHThTh_2016 {
 				yield =makeTHKeys(t,filelabel_+postfix,name,cut,scaleFactor);
 
 			//now the shifts
-			std::pair<float,float> tmpYield;
+			pair<float,float> tmpYield;
 			for(unsigned int i=0;i<shifts_.size();++i) {
 
 				TTree *ts= (TTree*)f->Get((channel_+"EventTree"+shifts_[i]+"Up/eventTree").c_str());
@@ -915,14 +848,14 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		std::pair<float,float> createHistogramAndShiftsFinal(std::string file,std::string name, std::string cut,float scaleFactor = 1, std::string postfix = "",bool normUC  = true, bool keys=false,bool ShapeUncertainty=true) {
+		pair<float,float> createHistogramAndShiftsFinal(string file,string name, string cut,float scaleFactor = 1, string postfix = "",bool normUC  = true, bool keys=false,bool ShapeUncertainty=true) {
 			TFile *f  = new TFile(file.c_str());
 			if(f==0) printf("Not file Found\n");
 			//get the nominal tree first
 			TTree *t= (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 			if(t==0) printf("Not Tree Found in file %s\n",file.c_str());
 
-			std::pair<float,float> yield;
+			pair<float,float> yield;
 
 			if(!keys)
 				yield =makeHistogram(t,filelabel_+postfix,name,cut,scaleFactor);
@@ -930,7 +863,7 @@ class DataCardCreatorHThTh_2016 {
 				yield =makeTHKeys(t,filelabel_+postfix,name,cut,scaleFactor);
 
 			//now the shifts
-			std::pair<float,float> tmpYield;
+			pair<float,float> tmpYield;
 			for(unsigned int i=0;i<shifts_.size();++i) {
 
 				TTree *ts= (TTree*)f->Get((channel_+"EventTreeFinal"+shifts_[i]+"Up/eventTree").c_str());
@@ -961,11 +894,11 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		void setBinning(const std::vector<double>& binning) {
+		void setBinning(const vector<double>& binning) {
 			binning_ = binning;
 		}
 
-		std::pair<float,float> inflateError(std::pair<float,float> input,float error, float error2 =0.0, float error3 = 0.0 ) {
+		pair<float,float> inflateError(pair<float,float> input,float error, float error2 =0.0, float error3 = 0.0 ) {
 			float value = input.first;
 			float err = sqrt(input.second*input.second+(input.first*error)*(input.first*error)+(input.first*error2)*(input.first*error2)+(input.first*error3)*(input.first*error3));
 
@@ -974,10 +907,10 @@ class DataCardCreatorHThTh_2016 {
 				printf("Found error above value -> Setting error to value\n");
 			}
 
-			return std::make_pair(value,err);
+			return make_pair(value,err);
 		}
 
-		void renormalizeHistogram(std::string folder, std::string histo, float yield)
+		void renormalizeHistogram(string folder, string histo, float yield)
 		{
 
 			TH1F * h =(TH1F*) fout_->Get((folder+"/"+histo).c_str());
@@ -1019,7 +952,7 @@ class DataCardCreatorHThTh_2016 {
 			return returnValue;
 		}
 
-		std::pair<float,float> makeHistogram(TTree* tree,std::string folder,std::string name,std::string cut,float scaleFactor = 1.) {
+		pair<float,float> makeHistogram(TTree* tree,string folder,string name,string cut,float scaleFactor = 1.) {
 
 			if(fout_->Get(folder.c_str())==0)
 				fout_->mkdir(folder.c_str());
@@ -1044,7 +977,7 @@ class DataCardCreatorHThTh_2016 {
 			h->Scale(scaleFactor);
 
 			if(verbose_>0)
-				std::cout<< " " <<name<<": "<<h->Integral()<<std::endl;
+				cout<< " " <<name<<": "<<h->Integral()<<endl;
 
 			//     printf("Created Histogram %s with entries=%f\n",name.c_str(),h->Integral());
 			fout_->cd(folder.c_str());
@@ -1058,7 +991,7 @@ class DataCardCreatorHThTh_2016 {
 			}
 			h->Write(h->GetName(),TObject::kOverwrite);
 
-			return std::make_pair(yield,error);
+			return make_pair(yield,error);
 		}
 
 
@@ -1067,7 +1000,7 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		std::pair<float,float> makeTHKeys(TTree* tree,std::string folder,std::string name,std::string cut,float scaleFactor = 1.) {
+		pair<float,float> makeTHKeys(TTree* tree,string folder,string name,string cut,float scaleFactor = 1.) {
 
 			if(fout_->Get(folder.c_str())==0)
 				fout_->mkdir(folder.c_str());
@@ -1116,17 +1049,17 @@ class DataCardCreatorHThTh_2016 {
 			delete h;
 			delete hh;
 
-			return std::make_pair(yield,error);
+			return make_pair(yield,error);
 		}
 
-		std::pair<float,float> createHistogramShifted(std::string file,std::string name, std::string cut,std::string shift,float scaleFactor = 1, std::string postfix = "") {
+		pair<float,float> createHistogramShifted(string file,string name, string cut,string shift,float scaleFactor = 1, string postfix = "") {
 			TFile *f  = new TFile(file.c_str());
 			if(f==0) printf("Not file Found\n");
 			//get the nominal tree first
 			TTree *t= (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 			if(t==0) printf("Not Tree Found in file %s\n",file.c_str());
 
-			std::pair<float,float> yield;
+			pair<float,float> yield;
 
 			yield =makeHistogramShifted(t,filelabel_+postfix,name,cut,shift,scaleFactor);
 
@@ -1134,7 +1067,7 @@ class DataCardCreatorHThTh_2016 {
 			return yield;
 		}
 
-		std::pair<float,float> makeHistogramShifted(TTree* tree,std::string folder,std::string name,std::string cut, std::string shift,float scaleFactor = 1.) {
+		pair<float,float> makeHistogramShifted(TTree* tree,string folder,string name,string cut, string shift,float scaleFactor = 1.) {
 
 			if(fout_->Get(folder.c_str())==0)
 				fout_->mkdir(folder.c_str());
@@ -1160,10 +1093,10 @@ class DataCardCreatorHThTh_2016 {
 			}
 			h->Write(h->GetName(),TObject::kOverwrite);
 
-			return std::make_pair(yield,error);
+			return make_pair(yield,error);
 		}
 
-		void scaleHistogram(std::string folder, std::string histo, float scaleFactor)
+		void scaleHistogram(string folder, string histo, float scaleFactor)
 		{
 			TH1F * h =(TH1F*) fout_->Get((folder+"/"+histo).c_str());
 			h->Scale(scaleFactor);
@@ -1192,17 +1125,17 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		std::pair<float,float> extractRFactor(std::string file,std::string preselection,std::string postfix) {
+		pair<float,float> extractRFactor(string file,string preselection,string postfix) {
 			TFile *f  = new TFile (file.c_str());
 			TTree *t = (TTree*)f->Get((channel_+"EventTree/eventTree").c_str());
 
-			std::pair<float,float> ss;
-			std::pair<float,float> os;
+			pair<float,float> ss;
+			pair<float,float> os;
 			ss = makeHistogram(t,filelabel_+postfix,"W_SS",("("+preselection+"&&charge!=0)*"+weight_).c_str());
 			os = makeHistogram(t,filelabel_+postfix,"W_OS",("("+preselection+"&&charge==0)*"+weight_).c_str());
 
-			std::cout<<"W Rfactor Selection: ("<<preselection+"&&(charge requirement) )*"<<weight_<<std::endl;
-			std::cout<<"W + Jets SS: "<< ss.first<<" OS: "<< os.first<<std::endl;
+			cout<<"W Rfactor Selection: ("<<preselection+"&&(charge requirement) )*"<<weight_<<endl;
+			cout<<"W + Jets SS: "<< ss.first<<" OS: "<< os.first<<endl;
 
 			float factor = os.first/ss.first;
 			float factorerrStat = sqrt(os.second*os.second + ss.second*ss.second);
@@ -1214,7 +1147,7 @@ class DataCardCreatorHThTh_2016 {
 				factor=0.;
 				factorErr=0.;
 			}
-			return std::make_pair(factor,factorErr);   
+			return make_pair(factor,factorErr);   
 
 		}
 
@@ -1222,16 +1155,16 @@ class DataCardCreatorHThTh_2016 {
 
 
 
-		std::pair<float,float> extractWFactor(std::string file,std::string preselection,std::string postfix, std::string Wweight = "1") {
+		pair<float,float> extractWFactor(string file,string preselection,string postfix, string Wweight = "1") {
 			TFile *f  = new TFile (file.c_str());
 			TTree *t = (TTree*)f->Get((channel_+"EventTree/eventTree").c_str());
 
-			std::pair<float,float> high;
-			std::pair<float,float> low;
+			pair<float,float> high;
+			pair<float,float> low;
 			high = makeHistogram(t,filelabel_+postfix,"W_High",("("+preselection+"&&"+wSelection_+")*"+weight_+"*"+Wweight).c_str());
 			low = makeHistogram(t,filelabel_+postfix,"W_Low",("("+preselection+"&&"+signalSelection_+")*"+weight_+"*"+Wweight).c_str());
 
-			std::cout<<"W + Jets High: "<< high.first<<" Low: "<< low.first<<std::endl;
+			cout<<"W + Jets High: "<< high.first<<" Low: "<< low.first<<endl;
 
 			float factor = low.first/high.first;
 			float factorerrStat = sqrt(low.second*low.second + high.second*high.second);
@@ -1242,21 +1175,21 @@ class DataCardCreatorHThTh_2016 {
 				factor=0.;
 				factorErr=0.;
 			}
-			return std::make_pair(factor,factorErr);   
+			return make_pair(factor,factorErr);   
 
 		}
 
-		std::pair<float,float> extractWFactorFinal(std::string file,std::string preselection,std::string postfix, std::string Wweight = "1") {
+		pair<float,float> extractWFactorFinal(string file,string preselection,string postfix, string Wweight = "1") {
 			TFile *f  = new TFile (file.c_str());
 			TTree *t = (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 
-			std::pair<float,float> high;
-			std::pair<float,float> low;
+			pair<float,float> high;
+			pair<float,float> low;
 
 			high = makeHistogram(t,filelabel_+postfix,"W_High",("("+preselection+"&&"+wSelection_+")*"+weight_+"*"+Wweight).c_str());
 			low = makeHistogram(t,filelabel_+postfix,"W_Low",("("+preselection+"&&"+signalSelection_+")*"+weight_+"*"+Wweight).c_str());
 
-			std::cout<<"W + Jets High: "<< high.first<<" Low: "<< low.first<<std::endl;
+			cout<<"W + Jets High: "<< high.first<<" Low: "<< low.first<<endl;
 
 			float factor = low.first/high.first;
 			float factorerrStat = sqrt(low.second*low.second + high.second*high.second);
@@ -1266,42 +1199,42 @@ class DataCardCreatorHThTh_2016 {
 				factor=0.;
 				factorErr=0.;
 			}
-			return std::make_pair(factor,factorErr);   
+			return make_pair(factor,factorErr);   
 
 		}
 
-		std::pair<float,float> extractWFactor(std::string file, std::string preselection, std::string postfix, std::string wSel, std::string sigSel) {
+		pair<float,float> extractWFactor(string file, string preselection, string postfix, string wSel, string sigSel) {
 			TFile *f  = new TFile (file.c_str());
 			TTree *t = (TTree*)f->Get((channel_+"EventTree/eventTree").c_str());
 			//TTree *t = (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 
-			std::pair<float,float> high;
-			std::pair<float,float> low;
+			pair<float,float> high;
+			pair<float,float> low;
 
 
 			high = makeHistogram(t,filelabel_+postfix,"W_High",("("+preselection+"&&"+wSel+")*"+weight_).c_str(),luminosity_);
 			low = makeHistogram(t,filelabel_+postfix,"W_Low",("("+preselection+"&&"+sigSel+")*"+weight_).c_str(),luminosity_);
 
-			std::cout<<"      Cuts in extract WFactor "<<"      OS W Mt>70: "<<high.first<<"      OS W Mt Low: "<<low.first<<std::endl;
-			std::cout<<"      Extract WFactor Second"<<"      OS W Mt>70: "<<high.second<<"      OS W Mt Low: "<<low.second<<std::endl;
+			cout<<"      Cuts in extract WFactor "<<"      OS W Mt>70: "<<high.first<<"      OS W Mt Low: "<<low.first<<endl;
+			cout<<"      Extract WFactor Second"<<"      OS W Mt>70: "<<high.second<<"      OS W Mt Low: "<<low.second<<endl;
 			float factor = low.first/high.first;
 			float factorerrStat = sqrt(low.second*low.second + high.second*high.second);
 			float factorerrSyst = factor*wFactorErr_;
 			float factorErr = sqrt(factorerrStat*factorerrStat+factorerrSyst*factorerrSyst);
 
 
-			std::cout<<"      WFactor Stat Error "<<"      factor: "<<factor<<"      StatError: "<<factorerrStat<<std::endl;
-			std::cout<<"      WFactor Syst Error "<<"      factor*wFactorErr_: "<<factor<<"*"<<wFactorErr_<<" = "<<factorerrSyst<<std::endl; 
-			std::cout<<"      WFactor Error "<<"      factorError = sqrt(Syst Error^2+Stat Error^2)= "<<factorErr<<std::endl; 
+			cout<<"      WFactor Stat Error "<<"      factor: "<<factor<<"      StatError: "<<factorerrStat<<endl;
+			cout<<"      WFactor Syst Error "<<"      factor*wFactorErr_: "<<factor<<"*"<<wFactorErr_<<" = "<<factorerrSyst<<endl; 
+			cout<<"      WFactor Error "<<"      factorError = sqrt(Syst Error^2+Stat Error^2)= "<<factorErr<<endl; 
 			if(high.first==0.){
 				factor=0.;
 				factorErr=0.;
 			}
-			return std::make_pair(factor,factorErr);   
+			return make_pair(factor,factorErr);   
 
 		}
 
-		void mergeHistogram(std::string folder, std::string histo1, std::string histo2, std::string newName)
+		void mergeHistogram(string folder, string histo1, string histo2, string newName)
 		{
 			TH1F * h1 =(TH1F*) fout_->Get((folder+"/"+histo1).c_str());
 			TH1F * h2 =(TH1F*) fout_->Get((folder+"/"+histo2).c_str());
@@ -1319,16 +1252,16 @@ class DataCardCreatorHThTh_2016 {
 			hNew->Write(TString(newName),TObject::kOverwrite);
 		}
 
-		std::pair<float,float> convertToPoisson(std::pair<float,float> measurement) {
+		pair<float,float> convertToPoisson(pair<float,float> measurement) {
 			float yield = measurement.first;
 			float CLHi = TMath::ChisquareQuantile(1-0.32/2,2*yield+2)/2.;
 			float CLLo = TMath::ChisquareQuantile(0.32/2,2*yield)/2.;
 			printf("Yield =%f Lo=%f Hi=%f\n",measurement.first,CLLo,CLHi);
-			return std::make_pair(measurement.first,(CLHi-CLLo)/2.);
+			return make_pair(measurement.first,(CLHi-CLLo)/2.);
 
 		}
 
-		void subtractHistogram(std::string folder, std::string histo1, std::string histo2)
+		void subtractHistogram(string folder, string histo1, string histo2)
 		{
 			TH1F * h1 =(TH1F*) fout_->Get((folder+"/"+histo1).c_str());
 			TH1F * h2 =(TH1F*) fout_->Get((folder+"/"+histo2).c_str());
@@ -1345,7 +1278,7 @@ class DataCardCreatorHThTh_2016 {
 			h1->Write(h1->GetName(),TObject::kOverwrite);
 		}
 
-		void addHistogram(std::string folder, std::string histo1, std::string histo2)
+		void addHistogram(string folder, string histo1, string histo2)
 		{
 			TH1F * h1 =(TH1F*) fout_->Get((folder+"/"+histo1).c_str());
 			TH1F * h2 =(TH1F*) fout_->Get((folder+"/"+histo2).c_str());
@@ -1355,7 +1288,7 @@ class DataCardCreatorHThTh_2016 {
 			h1->Write(h1->GetName(),TObject::kOverwrite);
 		}
 
-		void renameHist(std::string folder, std::string name ,std::string histo1)///folder, new name, old name
+		void renameHist(string folder, string name ,string histo1)///folder, new name, old name
 		{
 			TH1F * h1 =(TH1F*) fout_->Get((folder+"/"+histo1).c_str());
 			TH1F * h2 = (TH1F*) h1->Clone(TString(name));
@@ -1364,7 +1297,7 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		void FixNegativeBins(std::string folder, std::string histo, bool is_qcd, bool verbose=false) {
+		void FixNegativeBins(string folder, string histo, bool is_qcd, bool verbose=false) {
 
 			TH1F * hist =(TH1F*) fout_->Get((folder+"/"+histo).c_str());
 			unsigned bins = hist->GetNbinsX();
@@ -1372,13 +1305,13 @@ class DataCardCreatorHThTh_2016 {
 				if (hist->GetBinContent(i) < 0.){
 					hist->SetBinContent(i,0);
 					if(verbose)
-						std::cout<<"Bin "<< i << " is negative, setting to 0"<<std::endl;
+						cout<<"Bin "<< i << " is negative, setting to 0"<<endl;
 				}
 			}
 			hist->Write(hist->GetName(),TObject::kOverwrite);
 		}
 
-		void FixNegativeBinsMC(std::string folder, std::string histo, bool is_qcd, bool verbose=false){
+		void FixNegativeBinsMC(string folder, string histo, bool is_qcd, bool verbose=false){
 
 			FixNegativeBins(folder, histo, is_qcd, verbose);
 
@@ -1397,7 +1330,7 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		void FixEmptyBins(std::string folder, std::string histo, bool is_qcd, bool verbose=false) {
+		void FixEmptyBins(string folder, string histo, bool is_qcd, bool verbose=false) {
 
 			TH1F * hist =(TH1F*) fout_->Get((folder+"/"+histo).c_str());
 			unsigned bins = hist->GetNbinsX();
@@ -1408,24 +1341,24 @@ class DataCardCreatorHThTh_2016 {
 				if (hist->GetBinContent(bins-(i-1)) > 0. && last_populated == 0) last_populated = bins-(i-1);
 			}
 			if (last_populated <= first_populated) {
-				if (verbose) std::cout << "Cannot correct this distribution!" << std::endl;
+				if (verbose) cout << "Cannot correct this distribution!" << endl;
 				return;
 			}
-			if (verbose) std::cout << "First populated bin: " << first_populated << std::endl;
-			if (verbose) std::cout << "Last populated bin: " << last_populated << std::endl;
+			if (verbose) cout << "First populated bin: " << first_populated << endl;
+			if (verbose) cout << "Last populated bin: " << last_populated << endl;
 			double av_weight = ( hist->Integral() / double(hist->GetEntries()));
 			if (!is_qcd) {
-				if (verbose) std::cout << "Integral: " << hist->Integral() << std::endl;
-				if (verbose) std::cout << "Entries: " << hist->GetEntries() << std::endl;
-				if (verbose) std::cout << "Av. Weight: " << av_weight << std::endl;
+				if (verbose) cout << "Integral: " << hist->Integral() << endl;
+				if (verbose) cout << "Entries: " << hist->GetEntries() << endl;
+				if (verbose) cout << "Av. Weight: " << av_weight << endl;
 			}
 			for (unsigned i = first_populated+1; i < last_populated; ++i) {
 				if (hist->GetBinContent(i) == 0.) {
-					if (verbose) std::cout << "Bin " << i << " is empty!" << std::endl;
+					if (verbose) cout << "Bin " << i << " is empty!" << endl;
 					if (is_qcd) {
 						hist->SetBinError(i, 1.0);
 					} else {
-						if (verbose) std::cout << "Set weight to 1.0 * av_weight = " << (1.0 * av_weight) << std::endl;
+						if (verbose) cout << "Set weight to 1.0 * av_weight = " << (1.0 * av_weight) << endl;
 						hist->SetBinError(i, av_weight);    
 					}
 				}
@@ -1434,17 +1367,17 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
-		bool qcdSyst(std::string channel, std::string prefix, std::string histo1, float corr, float unc)
+		bool qcdSyst(string channel, string prefix, string histo1, float corr, float unc)
 		{
 
-			std::string chan = "mt";
+			string chan = "mt";
 			if(channel == "eleTau")
 				chan = "et";
 
 			TH1F * h1 =(TH1F*) fout_->Get((channel+prefix+"/"+histo1).c_str());
-			TH1F * h2 = (TH1F*)h1->Clone(TString(histo1+std::string("_CMS_htt_QCDShape_"+chan+prefix+"_"+energy_+"Up")));
-			TH1F * h3 = (TH1F*)h1->Clone(TString(histo1+std::string("_CMS_htt_QCDShape_"+chan+prefix+"_"+energy_+"Down")));
-			std::cout << "Channel label is " << chan << std::endl;
+			TH1F * h2 = (TH1F*)h1->Clone(TString(histo1+string("_CMS_htt_QCDShape_"+chan+prefix+"_"+energy_+"Up")));
+			TH1F * h3 = (TH1F*)h1->Clone(TString(histo1+string("_CMS_htt_QCDShape_"+chan+prefix+"_"+energy_+"Down")));
+			cout << "Channel label is " << chan << endl;
 			float x,y;
 			float cUp = corr+unc;
 			float cDown = corr-unc;
@@ -1473,48 +1406,46 @@ class DataCardCreatorHThTh_2016 {
 
 
 	private:
-		std::string channel_;
-		std::string filelabel_;
-		std::vector<std::string> shifts_;
-		std::vector<std::string> shiftsPostFix_;
-		std::string energy_;
+		string channel_;
+		string filelabel_;
+		vector<string> shifts_;
+		vector<string> shiftsPostFix_;
+		string energy_;
 		int samesign_;
 
 		//files
 		TFile *fout_;
 		int verbose_;
-		std::string zttFile_;
-		std::string zllFile_;
-		std::string wFile_;
-		std::string vvFile_;
-		std::string topFile_;
-		std::string qcdFile_;
-		std::string dataFile_;
+		string zttFile_;
+		string zllFile_;
+		string wFile_;
+		string vvFile_;
+		string topFile_;
+		string qcdFile_;
+		string dataFile_;
 		///////////////////////
 
 		//selections of regions
-		std::string preSelection_;
-		std::string osSignalSelection_;
-		std::string ssSignalSelection_;
-		std::string signalSelection_;
-		std::string osWSelection_;
-		std::string ssWSelection_;
-		std::string wSelection_;
-		std::string qcdSelection_;
-		std::string bSelection_;
-		std::string antibSelection_;
-		std::string relaxedSelection_;
-		std::string btagRelaxedSelection_;
-		std::string trigSelection_;
-		std::string trigSelection50ns_;
-		std::string trigSelection25ns_;
-		std::string blinding_;
-		std::string charge_;
-		std::string ZLL_genLLSel_;
-		std::string ZTT_genTauSel_;
-		std::string ZJFT_genLReject_;
-		std::string ZLFT_genLSel_;
-		std::string dataSelection_;
+		string preSelection_;
+		string osSignalSelection_;
+		string ssSignalSelection_;
+		string signalSelection_;
+		string osWSelection_;
+		string ssWSelection_;
+		string wSelection_;
+		string qcdSelection_;
+		string bSelection_;
+		string antibSelection_;
+		string relaxedSelection_;
+		string btagRelaxedSelection_;
+		string trigSelection_;
+		string blinding_;
+		string charge_;
+		string ZLL_genLLSel_;
+		string ZTT_genTauSel_;
+		string ZJFT_genLReject_;
+		string ZLFT_genLSel_;
+		string dataSelection_;
 
 		//Luminosity and efficiency corrections
 		float luminosity_;
@@ -1532,15 +1463,15 @@ class DataCardCreatorHThTh_2016 {
 		float scaleUp_;
 
 		//histogram options
-		std::string variable_;
+		string variable_;
 		int bins_;
 		float min_;
 		float max_;
-		std::vector<double> binning_;
-		std::string weight_;
-		std::string Zweight_;
-		std::string TTweight_;
-		std::string embWeight_;
+		vector<double> binning_;
+		string weight_;
+		string Zweight_;
+		string TTweight_;
+		string embWeight_;
 
 		//external parameters
 		float topErr_;
@@ -1581,16 +1512,16 @@ class DataCardCreatorHThTh_2016 {
 		float bMisID_;
 		float bMisIDErr_;
 
-		std::vector<std::string> mssmMasses_;
-		std::vector<std::string> smMasses_;
-		std::vector<std::string> smMassesDC_;
+		vector<string> mssmMasses_;
+		vector<string> smMasses_;
+		vector<string> smMassesDC_;
 
-		std::vector<float> mssmBBFraction_;
-		std::vector<float> smSigma_;
-		std::vector<float> vbfSigma_;
-		std::vector<float> vhSigma_;
+		vector<float> mssmBBFraction_;
+		vector<float> smSigma_;
+		vector<float> vbfSigma_;
+		vector<float> vhSigma_;
 
-		std::string dir_;
+		string dir_;
 
 
 };

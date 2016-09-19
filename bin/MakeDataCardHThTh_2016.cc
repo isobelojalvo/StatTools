@@ -31,6 +31,7 @@ int main (int argc, char* argv[])
 	parser.addOption("blinding",optutl::CommandLineParser::kString,"Blinding","pt_1>0");
 	parser.addOption("charge",optutl::CommandLineParser::kString,"charge","charge==0");
 	parser.addOption("bTagSF",optutl::CommandLineParser::kString,"bTagSF","1");
+	parser.addOption("outputFolder",optutl::CommandLineParser::kString,"outputFolder","_inclusive");
 
 	//Other Options
 	parser.addOption("luminosity",optutl::CommandLineParser::kDouble,"Luminosity",10.);
@@ -107,19 +108,14 @@ int main (int argc, char* argv[])
 		std::string inclSel = parser.stringValue("preselection"); 
 		std::string catSel = parser.stringValue("extraselection"); //any cat cut
 		std::string catDataSel = parser.stringValue("extraselection"); //any cat cut
-		std::string bTagSF = parser.stringValue("bTagSF");					 
-
+		std::string bTagSF = parser.stringValue("bTagSF");					 	     std::string foldername = parser.stringValue("outputFolder");
 		creator.makeHiggsShape(inclSel,catSel,"_extraselection");
-		BkgOutput outputIncl = creator.runFullExtrapBtag(inclSel,parser.stringValue("wselection"),inclSel,catSel,"_inclusivemt40",parser.stringValue("zEmbeddedSample"),parser.doubleValue("topSF"),
+		BkgOutput outputIncl = creator.runFullExtrapBtag(inclSel,parser.stringValue("wselection"),inclSel,catSel,foldername,parser.stringValue("zEmbeddedSample"),parser.doubleValue("topSF"),
 				1,//parser.doubleValue("zExtrap"),
 				1,//parser.doubleValue("zExtrapErr"),
-				bTagSF,//parser.doubleValue("BTagSF")
-				catDataSel 
+				bTagSF//parser.doubleValue("BTagSF")
 				);
 	}
-	
-
-
 
 	creator.close();
 }

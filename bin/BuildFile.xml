@@ -17,3 +17,5 @@
 </bin>
 <bin   name="MakeDataCardBtag1d" file="MakeDataCardBtag1d.cc">
 </bin>
+<bin   name="MakeDataCardHThTh_2016" file="MakeDataCardHThTh_2016.cc">
+</bin>
