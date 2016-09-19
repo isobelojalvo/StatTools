@@ -184,8 +184,8 @@ void makeLTauStack(TString name,TString file,TString dir,int s,TString labelX,TS
 	hs->Add(ZTT);
 
 	if(s==3) {
-        TH1F * ZH = (TH1F*)(f->Get(dir+"/Zprime1200A400"));
-        TH1F * AH = (TH1F*)(f->Get(dir+"/Zprime600A400"));
+        TH1F * ZH = (TH1F*)(f->Get(dir+"/Zprime2500A400"));
+        TH1F * AH = (TH1F*)(f->Get(dir+"/Zprime2000A400"));
         TH1F *zh = ZH;
         TH1F *ah = AH;
         zh->Scale(1);//FIXME
@@ -320,7 +320,7 @@ void makeLTauStack(TString name,TString file,TString dir,int s,TString labelX,TS
         data2->SetTitleSize  (0.12,"X");
         data2->SetLabelSize  (0.10,"X");
         data2->SetLabelSize  (0.08,"Y");
-        data2->GetYaxis()->SetRangeUser(0.5,1.5);
+        data2->GetYaxis()->SetRangeUser(0,2.2);
         //data2->GetYaxis()->SetRangeUser(0.62,1.38);
         data2->GetYaxis()->SetNdivisions(305);
         data2->GetYaxis()->SetTitle("Obs/Exp   ");
@@ -359,14 +359,14 @@ void makeLTauStack(TString name,TString file,TString dir,int s,TString labelX,TS
 
     if(log){
         if(s==3){
-            l->AddEntry(signalAH,"Zprime(600)#rightarrowA(400)#rightarrow#Chi#Chih#rightarrow#tau#tau 1 pb","L");
-            l->AddEntry(signalZH,"Zprime(1200)#rightarrowA(400)#rightarrow#Chi#Chih#rightarrow#tau#tau 1 pb","L");
+            l->AddEntry(signalAH,"Zprime(2000)#rightarrowA(400)#rightarrow#Chi#Chih#rightarrow#tau#tau 1 pb","L");
+            l->AddEntry(signalZH,"Zprime(2500)#rightarrowA(400)#rightarrow#Chi#Chih#rightarrow#tau#tau 1 pb","L");
         }
     }
     else{
         if(s==3){
-            l->AddEntry(signalAH,"Zprime(600)#rightarrow(A(400)#rightarrow#Chi#Chi)(h#rightarrow#tau#tau) 1 pb","F");
-            l->AddEntry(signalZH,"Zprime(1200)#rightarrow(A(400)#rightarrow#Chi#Chi)(h#rightarrow#tau#tau) 1 pb","F");
+            l->AddEntry(signalAH,"Zprime(2000)#rightarrow(A(400)#rightarrow#Chi#Chi)(h#rightarrow#tau#tau) 1 pb","F");
+            l->AddEntry(signalZH,"Zprime(2500)#rightarrow(A(400)#rightarrow#Chi#Chi)(h#rightarrow#tau#tau) 1 pb","F");
         }
     }
 

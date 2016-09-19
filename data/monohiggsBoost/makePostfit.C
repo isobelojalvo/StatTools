@@ -42,8 +42,8 @@ void makeLTauStack(TString name,TString file,TString dir,int s,TString labelX,TS
     gROOT->SetBatch(kTRUE);
 
 	writeExtraText = true;       // if extra text
-	extraText  = "Preliminary";  // default extra text is "Preliminary"
-	//extraText  = "Analysis in Progress";  // default extra text is "Preliminary"
+	//extraText  = "Preliminary";  // default extra text is "Preliminary"
+	extraText  = "Analysis in Progress";  // default extra text is "Preliminary"
 	lumi_8TeV  = "19.1 fb^{-1}"; // default is "19.7 fb^{-1}"
 	lumi_7TeV  = "4.9 fb^{-1}";  // default is "5.1 fb^{-1}"
 	lumi_sqrtS = "13 TeV";
@@ -184,8 +184,8 @@ void makeLTauStack(TString name,TString file,TString dir,int s,TString labelX,TS
 	hs->Add(ZTT);
 
 	if(s==3) {
-        TH1F * ZH = (TH1F*)(f->Get(dir+"/Zprime1200A400"));
-        TH1F * AH = (TH1F*)(f->Get(dir+"/Zprime600A400"));
+        TH1F * ZH = (TH1F*)(f->Get(dir+"/ZprimeA800Z"));
+        TH1F * AH = (TH1F*)(f->Get(dir+"/ZprimeA400Z"));
         TH1F *zh = ZH;
         TH1F *ah = AH;
         zh->Scale(1);//FIXME
