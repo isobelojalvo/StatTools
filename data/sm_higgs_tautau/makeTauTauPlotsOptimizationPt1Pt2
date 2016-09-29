@@ -1,0 +1,43 @@
+#!/bin/sh
+preselection='pt_1>40&&pt_2>40&&npv>0&&diLeptons==0&&isoTight_1>0.5&&isoTight_2>0.5&&tightMuons==0&&tightElectrons==0&&againstMuonTight3_2>0&&againstElectronVLooseMVA6_2>0'
+bselection='btag>=1'
+antibselection='nbtag==0'
+wselection='mt_1>70'
+signalselection='mt_1<40'
+qcdselection='pt_1>40&&pt_2>40&&npv>0&&diLeptons==0&&isoLoose_1>0.5&&isoLoose_2>0.5&&tightMuons==0&&tightElectrons==0&&againstMuonTight3_2>0&&againstElectronVLooseMVA6_2>0&&isoTight_1<0.5&&isoTight_2<0.5'
+trigselection='pt_1>24' #only for MC
+trigselectiondata='HLT_Any' #only for Data
+relaxedSelection='pt_2>20&&npv>0&&diLeptons==0&&iso_04>0.15&&iso_04<0.3&&tauIsoLoose>0.5'
+luminosity=20000 #pb
+direc='/data/ojalvo/ztt_weighted15Corr/'
+#direc='/data/ojalvo/ztt_weighted18/'
+datadirec=$direc
+zttScale=1.
+topWeight=1.0
+zWeight=1.0
+qcdfactor=1.06
+topSF=1.
+bins=30
+tauID=0.85
+outputDir='optVBFpt1pt2'
+
+mkdir $outputDir
+
+binning='binningLowStat=20.,30.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100.,110.,120.,130.,150. binningHighStat=0.,20.,40.,60.,80.,100.,120.,140.,160.,180.,200.,250.,300.,350.' 
+
+signalselection='mJJ>100&&fullPt>100&&njets==2&&jdeta>3.5';
+
+for pt1 in 40 #41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+do
+    for pt2_index in 0 #1 2 3 4 5 6 7 8 9 10
+    do
+	pt2=$(($pt1 + $pt2_index));
+	echo "pt1 "$pt1" pt2 "$pt2;
+	preselection=$preselection'&&pt_1>'$pt1'&&pt_2>'$pt2;
+        MakeDataCardHThTh_2016 channel='diTau'  folder='tt_vbf'  dataFile=$datadirec'tauDATA.root' qcdFile=$direc'tauDATA.root' zttFile=$direc'ZJETS.root' zllFile=$direc'ZJETS.root' wFile=$direc'WJETS.root' vvFile=$direc'DiBoson.root' topFile=$direc'TTJets.root' preselection=$preselection  wselection=$wselection  relaxedSelection=$relaxedSelection trigSelection=$trigselection trigSelectionData=$trigselectiondata  signalselection=$signalselection   qcdselection=$qcdselection luminosityErr=0.045 qcdfactor=$qcdfactor qcdfactorErr=0.02 vvErr=0.3   zttScale=$zttScale zttScaleErr=0.033    wFactorErr=0.06    zjfterr=0.1  zlfterr=0.24   topErr=0.075  topSF=$topSF  tauID=$tauID tauIDErr=0.06  dir=$direc''  bID=1.0  bIDErr=0.10  bMisID=1.0  bMisIDErr=0.17    bitmask=1,0,0,0  weight='__WEIGHT__*GENWEIGHT*puweight'  luminosity=$luminosity  variable='m_vis' bins=20 min=0 max=350 outputFile=$outputDir'/tauTau_mvis_vbf-'$pt1'+'$pt2'.root'  
+    done
+    echo "======================================"
+    wait;
+    echo "======================================"
+done
+

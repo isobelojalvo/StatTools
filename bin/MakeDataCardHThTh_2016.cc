@@ -28,16 +28,20 @@ int main (int argc, char* argv[])
 	parser.addOption("relaxedSelection",optutl::CommandLineParser::kString,"Relaxed Selection");
 	parser.addOption("bselection",optutl::CommandLineParser::kString,"Btagging requirement for MSSM","nbtag>=1");
 	parser.addOption("trigSelection",optutl::CommandLineParser::kString,"Trigger Selection","crossTrigger>0||(lTrigger>0&&pt_1>25)");
+	parser.addOption("trigSelectionData",optutl::CommandLineParser::kString,"Trigger Selection","crossTrigger>0||(lTrigger>0&&pt_1>25)");
 	parser.addOption("blinding",optutl::CommandLineParser::kString,"Blinding","pt_1>0");
 	parser.addOption("charge",optutl::CommandLineParser::kString,"charge","charge==0");
 	parser.addOption("bTagSF",optutl::CommandLineParser::kString,"bTagSF","1");
-	parser.addOption("outputFolder",optutl::CommandLineParser::kString,"outputFolder","_inclusive");
+	parser.addOption("folder",optutl::CommandLineParser::kString,"folder","_inclusive");
 
 	//Other Options
 	parser.addOption("luminosity",optutl::CommandLineParser::kDouble,"Luminosity",10.);
 	parser.addOption("luminosityErr",optutl::CommandLineParser::kDouble,"LuminosityErr",0.04);
 	parser.addOption("variable",optutl::CommandLineParser::kString,"Shape variable ","mass");
+	parser.addOption("Zweight",optutl::CommandLineParser::kString,"Zweight","1");
+	parser.addOption("ttweight",optutl::CommandLineParser::kString,"ttweight","1");
 	parser.addOption("weight",optutl::CommandLineParser::kString,"Weight for MC (Multiply Weight Factors here for efficiencies)","__WEIGHT__");
+
 	parser.addOption("embWeight",optutl::CommandLineParser::kString,"Weight for Embedded","__CORR__");
 	parser.addOption("min",optutl::CommandLineParser::kDouble,"Minimum value",0.);
 	parser.addOption("max",optutl::CommandLineParser::kDouble,"Maximum Value ",500.);
@@ -108,7 +112,7 @@ int main (int argc, char* argv[])
 		std::string inclSel = parser.stringValue("preselection"); 
 		std::string catSel = parser.stringValue("extraselection"); //any cat cut
 		std::string catDataSel = parser.stringValue("extraselection"); //any cat cut
-		std::string bTagSF = parser.stringValue("bTagSF");					 	     std::string foldername = parser.stringValue("outputFolder");
+		std::string bTagSF = parser.stringValue("bTagSF");					 	    std::string foldername = parser.stringValue("folder");
 		creator.makeHiggsShape(inclSel,catSel,"_extraselection");
 		BkgOutput outputIncl = creator.runFullExtrapBtag(inclSel,parser.stringValue("wselection"),inclSel,catSel,foldername,parser.stringValue("zEmbeddedSample"),parser.doubleValue("topSF"),
 				1,//parser.doubleValue("zExtrap"),

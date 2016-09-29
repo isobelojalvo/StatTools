@@ -56,7 +56,8 @@ class DataCardCreatorHThTh_2016 {
 
 
                         string name_=channel_;
-			if (channel_=="tauTau") filelabel_="tt";
+			//if (channel_=="tauTau") 
+			filelabel_="tt";
 
 
 			//create the name you need to add to the histograms 
@@ -88,19 +89,20 @@ class DataCardCreatorHThTh_2016 {
 			wSelection_           = parser.stringValue("wselection");
 			qcdSelection_         = parser.stringValue("qcdSelection");
 			relaxedSelection_     = parser.stringValue("relaxedselection");
-			bSelection_           = parser.stringValue("bselection");
-			antibSelection_       = parser.stringValue("antibSelection");
-			btagRelaxedSelection_ = parser.stringValue("btagRelaxedSelection");
+			//bSelection_           = parser.stringValue("bselection");
+			//antibSelection_       = parser.stringValue("antibSelection");
+			//btagRelaxedSelection_ = parser.stringValue("btagRelaxedSelection");
 			trigSelection_        = parser.stringValue("trigSelection");
+			trigSelectionData_    = parser.stringValue("trigSelectionData");
 			blinding_             = parser.stringValue("blinding");
 			charge_               = parser.stringValue("charge");
                         if (samesign_) charge_="abs(charge)==2";
    
                   
-			ZTT_genTauSel_        = "gen_match_2==5"; //Zttyield
-			ZLFT_genLSel_         = "gen_match_2<5";
-			ZJFT_genLReject_      = "gen_match_2==6";
-			ZLL_genLLSel_        = "(gen_match_2<5||gen_match_2==6)"; //Zttyield
+			ZTT_genTauSel_        = "gen_match_1==5&&gen_match_2==5"; //Zttyield
+			ZLFT_genLSel_         = "(gen_match_1==6||gen_match_2==6)";
+			ZJFT_genLReject_      = "(gen_match_1==5&&gen_match_2<5||gen_match_1<5&&gen_match_2==5)";
+			ZLL_genLLSel_        = "(gen_match_1==6&&gen_match_2==6)"; 
 
 			if(samesign_>0)
 			  osSignalSelection_    = signalSelection_+"&&abs(charge)==2";
@@ -119,14 +121,14 @@ class DataCardCreatorHThTh_2016 {
 			//read systematic uncertainties 
 			luminosity_    = parser.doubleValue("luminosity");
 			luminosityErr_ = parser.doubleValue("luminosityErr");
-			muID_          = parser.doubleValue("muID");
-			muIDErr_       = parser.doubleValue("muIDErr");
+			//muID_          = parser.doubleValue("muID");
+			//muIDErr_       = parser.doubleValue("muIDErr");
 			bID_           = parser.doubleValue("bID");
 			bIDErr_        = parser.doubleValue("bIDErr");
 			bMisID_        = parser.doubleValue("bMisID");
 			bMisIDErr_     = parser.doubleValue("bMisIDErr");
-			eleID_         = parser.doubleValue("eleID");
-			eleIDErr_      = parser.doubleValue("eleIDErr");
+			//eleID_         = parser.doubleValue("eleID");
+			//eleIDErr_      = parser.doubleValue("eleIDErr");
 			tauID_         = parser.doubleValue("tauID");
 			tauIDHigh_     = parser.doubleValue("tauIDHigh");
 			tauIDErr_      = parser.doubleValue("tauIDErr");
@@ -146,7 +148,6 @@ class DataCardCreatorHThTh_2016 {
 			bins_ = parser.integerValue("bins");
 			min_  = parser.doubleValue("min");
 			max_  = parser.doubleValue("max");
-
 
 			//Define background uncertainty Errors
 			topErr_     = parser.doubleValue("topErr");
@@ -178,9 +179,9 @@ class DataCardCreatorHThTh_2016 {
 			pair<float,float> tmp;
 			float legCorr=1.0;
 
-			if(muID_!=0&&eleID_!=0) {legCorr*=muID_*eleID_;}
-			if(muID_!=0&&eleID_==0) {legCorr*=muID_*tauID_;}
-			if(muID_==0&&eleID_!=0) {legCorr*=eleID_*tauID_;}
+			//if(muID_!=0&&eleID_!=0) {legCorr*=muID_*eleID_;}
+			//if(muID_!=0&&eleID_==0) {legCorr*=muID_*tauID_;}
+			//if(muID_==0&&eleID_!=0) {legCorr*=eleID_*tauID_;}
                         cout<<"Make Higgs Shape"<<endl;
 			//tmp= createHistogramAndShifts(dir_+"ggH120.root","ggH120",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
 			//tmp= createHistogramAndShifts(dir_+"ggH125.root","ggH125",("("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_),luminosity_*legCorr,prefix);
@@ -263,20 +264,38 @@ class DataCardCreatorHThTh_2016 {
 
 			BkgOutput output(0);    
 
-			float leg1Corr=1.0;
+			float leg1Corr=tauID_;
+			float tauIDCorr=tauID_*tauID_;
 			printf("Tau ID Scale Factor is %.3f \n",tauID_);
+
+			/*
+			  Input QCD selection 
+			  then the estimate takes the yield and shape from the Relaxed Selection in OS
+			  Relaxed Selection is one Tau Tight one Tau Anti-Tight
+			  then multiply by an Loose to Tight SF 
+			  QCD = OS Loose * (SS tight / SS Loose)
+			  ->The regions for the scale factor should be calculated in a distribution without tails (i.e. tau eta)
+			  ->The Yields in these regions should subtract the MC estimates
+			  Needed: 1.) Yield estimator (no histograms)  2.) division and multiplication error propogator
+			 */
+			cout<<"Create QCD"<<endl;
+			if(!runQCD(preSelection, prefix, zShape, topExtrap, output, "pt_1>-100", qcdSelection_)){ //pt_1>-100 is the category Selection
+				cout<<"Error Creating QCD"<<endl;
+				return output;
+			}
 
                         cout<<"Create Data"<<endl;
 			cout<<"      Data Selection: "<<preSelection<<"&&"<<osSignalSelection_<<endl;
 			string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
+			string fullSelectionData = preSelection+"&&"+trigSelectionData_+"&&"+osSignalSelection_;
 
-			pair<float,float> dataY     = createHistogramAndShifts(dataFile_,"data_obs","("+fullSelection+"&&"+blinding_+")",scaleUp_,prefix);
+			pair<float,float> dataY     = createHistogramAndShifts(dataFile_,"data_obs","("+fullSelectionData+"&&"+blinding_+")",scaleUp_,prefix);
 			output.DATA = dataY.first;
 
                         cout<<"Create Top"<<endl;
 			//Create ttbar
 
-			pair<float,float> topYield      = createHistogramAndShifts(topFile_,"TT",("("+fullSelection+")*"+weight_+"*"+TTweight_),luminosity_*leg1Corr*tauID_*topExtrap,prefix);
+			pair<float,float> topYield   = createHistogramAndShifts(topFile_,"TT",("("+fullSelection+")*"+weight_+"*"+TTweight_),luminosity_*tauIDCorr*topExtrap,prefix);
 			pair<float,float> topInflYield  = inflateError(topYield,topErr_);
 
 			output.TOP  = topInflYield.first;
@@ -284,7 +303,7 @@ class DataCardCreatorHThTh_2016 {
 
                         cout<<"Create VV"<<endl;
 			//Create Diboson
-			pair<float,float> vvYield      = createHistogramAndShifts(vvFile_,"VV",("("+fullSelection+")*"+weight_),luminosity_*leg1Corr*tauID_,prefix);
+			pair<float,float> vvYield      = createHistogramAndShifts(vvFile_,"VV",("("+fullSelection+")*"+weight_),luminosity_*tauIDCorr,prefix);
 			pair<float,float> vvInflYield  = inflateError(vvYield,vvErr_);
 			output.VV  = vvInflYield.first;
 			output.dVV = vvInflYield.second;
@@ -303,40 +322,25 @@ class DataCardCreatorHThTh_2016 {
 
                         cout<<"Create ZJFT"<<endl;
 			pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&"+ZJFT_genLReject_+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
-			//pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&(!((genTaus==0&&abs(pdg2)==13&&genPt2>8)||(genTaus==0&&abs(pdg2)==11&&genPt2>8)||(genTaus>0&&genVisPt2>18))))*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
 			pair<float,float> zjftInflYield  = inflateError(zjftYield,zjftErr_);
 
 			output.ZJFT  = zjftInflYield.first;
 			output.dZJFT = zjftInflYield.second;
 
                         cout<<"Create ZTT"<<endl;
-			//Create Z-->tautau
-			/*
-			if(!runZTT(preSelection, prefix, zShape, topExtrap, output)){
-				cout<<"Error Creating Ztt"<<endl;
-				return output;
-			 }
-			*/
-			pair<float,float> ZTT    = createHistogramAndShifts(zttFile_,"ZTT",("("+fullSelection+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
-
+			pair<float,float> ZTT    = createHistogramAndShifts(zttFile_,"ZTT",("("+fullSelection+")*"+weight_),luminosity_*tauIDCorr*zttScale_,prefix);    
+			output.ZTT = ZTT.first;
+			output.dZTT = ZTT.second;
 
 			//Create W 
 			//In principle osSignalSelection should work as a dummy variable
 			cout<<"Create W"<<endl;
-			/*
-			if(!runW(preSelection, prefix, zShape, topExtrap, output, "pt_1>-100", "pt_1>-100",wSelection_)){
-				cout<<"Error Creating W"<<endl;
-				return output;
-			}
-			*/
-			pair<float,float> W    = createHistogramAndShifts(zttFile_,"W",("("+fullSelection+")*"+weight_),luminosity_*leg1Corr,prefix);    
-
+			pair<float,float> W    = createHistogramAndShifts(wFile_,"W",("("+fullSelection+")*"+weight_),luminosity_*leg1Corr,prefix);
+			output.W = W.first;
+			output.dW = W.second;
+			
                         cout<<"Create QCD"<<endl;
 			//Create QCD
-			if(!runQCD(preSelection, prefix, zShape, topExtrap, output, "pt_1>-100", relaxedSelection_)){ //pt_1>-100 is the category Selection
-				cout<<"Error Creating QCD"<<endl;
-				return output;
-			}
 			printf("      TTbar events in signal region = %f + %f \n",topInflYield.first,topInflYield.second);
 			printf("      Diboson events before inflation = %f + %f \n",vvYield.first,vvYield.second);
 			printf("      Diboson events in signal region = %f + %f \n",vvInflYield.first,vvInflYield.second);
@@ -361,21 +365,21 @@ class DataCardCreatorHThTh_2016 {
 			printf("BACKGROUND=%f +-%f \n",background,backgroundErr);
 
 
-			float fullBackgroundErr = sqrt(pow(quadrature(output.VV,output.dVV,muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_),2)
-					+pow(quadrature(output.TOP,output.dTOP,muIDErr_,eleIDErr_,tauIDErr_),2)
-					+pow(quadrature(output.ZJFT,output.dZJFT,muIDErr_,eleIDErr_,zttScaleErr_),2)
-					+pow(quadrature(output.ZLFT,output.dZLFT,muIDErr_,eleIDErr_,zttScaleErr_),2)
+			float fullBackgroundErr = sqrt(pow(quadrature(output.VV,output.dVV,zttScaleErr_,tauIDErr_),2)
+					+pow(quadrature(output.TOP,output.dTOP,tauIDErr_),2)
+					+pow(quadrature(output.ZJFT,output.dZJFT,zttScaleErr_),2)
+					+pow(quadrature(output.ZLFT,output.dZLFT,zttScaleErr_),2)
 					+pow(output.dQCD,2)
 					+pow(output.dW,2)
-					+pow(quadrature(output.ZTT,output.dZTT,muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_),2));
+					+pow(quadrature(output.ZTT,output.dZTT,zttScaleErr_,tauIDErr_),2));
 
-			printf("Total Background & %.2f $\\pm$ %.2f & - & - & - \\\\ \n",background,sqrt(pow(quadrature(output.VV,    output.dVV,   muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_),2)
-						+pow(quadrature(output.TOP,  output.dTOP,  muIDErr_,eleIDErr_,tauIDErr_),2)
-						+pow(quadrature(output.ZJFT, output.dZJFT, muIDErr_,eleIDErr_,zttScaleErr_),2)
-						+pow(quadrature(output.ZLFT, output.dZLFT, muIDErr_,eleIDErr_,zttScaleErr_),2)
+			printf("Total Background & %.2f $\\pm$ %.2f & - & - & - \\\\ \n",background,sqrt(pow(quadrature(output.VV,    output.dVV,   zttScaleErr_,tauIDErr_),2)
+						+pow(quadrature(output.TOP,  output.dTOP,  tauIDErr_),2)
+						+pow(quadrature(output.ZJFT, output.dZJFT, zttScaleErr_),2)
+						+pow(quadrature(output.ZLFT, output.dZLFT, zttScaleErr_),2)
 						+pow(output.dQCD,2)
 						+pow(output.dW,2)
-						+pow(quadrature(output.ZTT,output.dZTT,muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_),2)));
+						+pow(quadrature(output.ZTT,output.dZTT,zttScaleErr_,tauIDErr_),2)));
 
 
 
@@ -399,18 +403,17 @@ class DataCardCreatorHThTh_2016 {
 			cout<<"======================"<<endl;
                         cout<<"Run Full Extrapolation"<<endl;
 			cout<<"categorySelection: "<<categorySelection_<<endl;
-			//TODO: Fix this category seleciton business, should be more elegant
+
 			string categorySelection = categorySelection_;
 			string dummySelection_   = osSignalSelection_;
 			string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
-
-			weight_ = weight_+"*"+bTagSF;
+			
+			//no b-tagging run yet
+			//weight_ = weight_+"*"+bTagSF;
 
 			BkgOutput output;    
 
 			float leg1Corr=1.0;
-			if(muID_!=0) leg1Corr*=muID_;
-			if(eleID_!=0) leg1Corr*=eleID_;
 
 			printf("Tau ID Scale Factor is %.3f \n",tauID_);
 
@@ -420,15 +423,11 @@ class DataCardCreatorHThTh_2016 {
 			cout<<"      DATA Yield: "<< output.DATA<<endl;
 			cout<<"      DATA Selection: "<<preSelection<<"&&"<<trigSelection_<<"&&"<<osSignalSelection_<<"&&"<<categorySelection<<endl; 
 
-
-
                         cout<<"Create DiBoson"<<endl;
 			//Create Diboson
 			pair<float,float> vvYield      = createHistogramAndShifts(vvFile_,"VV",("("+fullSelection+"&&"+categorySelection+")*"+weight_),luminosity_*leg1Corr*tauID_,prefix);
-			cout<<"      VV before error inflation: "<<vvYield.first<<endl;
+
 			pair<float,float> vvInflYield  = inflateError(vvYield,vvErr_);
-			printf("      Diboson events in signal region = %f + %f \n",vvInflYield.first,vvInflYield.second);
-			cout<<"      VV after error inflation: "<<vvInflYield.first<<endl;
 			output.VV  = vvInflYield.first;
 			output.dVV = vvInflYield.second;
 
@@ -436,59 +435,54 @@ class DataCardCreatorHThTh_2016 {
 
                         cout<<"Create ZLFT"<<endl;
 			//ZL Yield
-			pair<float,float> zlftYield   = createHistogramAndShifts(zllFile_,"ZLTmp",("("+fullSelection+"&&"+categorySelection_+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
+			pair<float,float> zlftYield = createHistogramAndShifts(zllFile_,"ZLTmp",("("+fullSelection+"&&"+categorySelection+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
 			//ZLShape
-			//pair<float,float> zlftShape   = createHistogramAndShifts(zllFile_,"ZL",("("+fullSelection+"&&"+relaxedSelection+"&&"+ZLFT_genLSel_+")*"+weight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
-			pair<float,float> zlftShape   = createHistogramAndShifts(zllFile_,"ZL",("("+fullSelection+"&&"+categorySelection+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
-
+			pair<float,float> zlftShape = createHistogramAndShifts(zllFile_,   "ZL",("("+fullSelection+"&&"+categorySelection+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
 			pair<float,float> zlftInflYield  = inflateError(zlftYield,zlftErr_);
-			printf("      Z (l->tau) in signal region = %f + %f \n",zlftInflYield.first,zlftInflYield.second);
 
 			renormalizeHistogram(filelabel_+prefix,"ZL",zlftInflYield.first);
 			output.ZLFT  = zlftInflYield.first;
 			output.dZLFT  = zlftInflYield.second;
 
-			if(shifts_.size()>0&&channel_=="eleTau"){
-				pair<float,float> zlShiftUp      = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_etau_13TeVUp",("("+fullSelection+"&&"+categorySelection_+"&&abs(pdg2)==11&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"1.02",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
-				pair<float,float> zlShiftDown     = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_etau_13TeVDown",("("+fullSelection+"&&"+categorySelection_+"&&abs(pdg2)==11&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"0.98",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
-			}
-			else if(shifts_.size()>0&&channel_=="muTau"){
-				pair<float,float> zlShiftUp      = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_mutau_13TeVUp",("("+fullSelection+"&&"+categorySelection_+"&&abs(pdg2)==13&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"1.02",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
-				pair<float,float> zlShiftDown     = createHistogramShifted(zllFile_,"ZL_CMS_htt_ZLScale_mutau_13TeVDown",("("+fullSelection+"&&"+categorySelection_+"&&abs(pdg2)==13&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_),"0.98",luminosity_*leg1Corr*zlftFactor_*zttScale_*zExtrap,prefix);
-			}
-
                         cout<<"Create ZJFT"<<endl;
 			//ZJ Yield
-			pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJTmp",("("+fullSelection+"&&"+categorySelection_+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			pair<float,float> zjftYield     = createHistogramAndShifts(zllFile_,"ZJTmp",("("+fullSelection+"&&"+categorySelection+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);
 
 			//ZJ Shape
-			//pair<float,float> zjftShape      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&"+relaxedSelection+"&&"+ZJFT_genLReject_+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
-			pair<float,float> zjftShape      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&"+categorySelection+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			pair<float,float> zjftShape     = createHistogramAndShifts(zllFile_,   "ZJ",("("+fullSelection+"&&"+categorySelection+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);
 
 			pair<float,float> zjftInflYield  = inflateError(zjftYield,zjftErr_);
-			printf("      Z (j->tau) in signal region = %f + %f \n",zjftInflYield.first,zjftInflYield.second);
 			renormalizeHistogram(filelabel_+prefix,"ZJ",zjftInflYield.first);
 			output.ZJFT  = zjftInflYield.first;
 			output.dZJFT = zjftInflYield.second;
 
                         cout<<"Create ZTT"<<endl;
 			//TODO: Check me, previous Btag ZTT shape correction had a special normalization method
+			pair<float,float> ztt  = createHistogramAndShifts(zttFile_,"ZTT",("("+fullSelection+"&&"+categorySelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+Zweight_),luminosity_*zttScale_*leg1Corr*tauID_,prefix);
+			/*
 			if(!runZTT(preSelection, prefix, zShape, topExtrap, output, categorySelection)){
 				cout<<"Error Creating Ztt"<<endl;
 				return output;
 			}
+			*/
 
                         cout<<"Create TOP"<<endl;
 			//Create ttbar
 			//Last argument is a dummy argument
+			pair<float,float> topShape      = createHistogramAndShifts(topFile_,"TT",("("+fullSelection+"&&"+categorySelection+")*"+weight_+"*"+TTweight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
+			/*
 			if(!runTOP(preSelection, prefix, zShape, topExtrap, output, categorySelection, relaxedSelection)){
 				cout<<"Error Creating TOP"<<endl;
 				return output;
 			}
-
+			*/
 
                         cout<<"Create W"<<endl;
-			//Create W
+			pair<float,float> wShape         = createHistogramAndShifts(wFile_,"W",("("+fullSelection+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
+			//cout<<"Relaxed Selection: "<<relaxedSelection<<endl;
+			//pair<float,float> wYield         = createHistogramAndShifts(wFile_,"WYield",("("+fullSelection+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
+			output.W  = wShape.first;
+			output.dW = wShape.second;
 			/*
 			if(!runW(preSelection, prefix, zShape, topExtrap, output, categorySelection, relaxedSelection, wSel)){
 				cout<<"Error Creating W"<<endl;
@@ -498,7 +492,7 @@ class DataCardCreatorHThTh_2016 {
 
                         cout<<"Create QCD"<<endl;
 			//Create QCD
-			if(!runQCD(preSelection, prefix, zShape, topExtrap, output, categorySelection, relaxedSelection)){
+			if(!runQCD(preSelection, prefix, zShape, topExtrap, output, categorySelection, qcdSelection_)){
 				cout<<"Error Creating QCD"<<endl;
 				return output;
 			}
@@ -510,6 +504,11 @@ class DataCardCreatorHThTh_2016 {
 			cout<<"DATA: "<< output.DATA<<endl;
 			cout<<endl;
 	
+			cout<<"      VV before error inflation: "<<vvYield.first<<endl;
+			printf("      Diboson events in signal region = %f + %f \n",vvInflYield.first,vvInflYield.second);
+			cout<<"      VV after error inflation: "<<vvInflYield.first<<endl;
+			printf("      Z (l->tau) in signal region = %f + %f \n",zlftInflYield.first,zlftInflYield.second);
+			printf("      Z (j->tau) in signal region = %f + %f \n",zjftInflYield.first,zjftInflYield.second);
 
 			cout<<endl;
 			cout<<"BKGD Yields "<<endl;
@@ -530,30 +529,30 @@ class DataCardCreatorHThTh_2016 {
 
 			//printf("LATEX ------------------------------------\n");
 			//printf("Total & %.2f & %.2f & %.2f & %.2f \\\\ \n", dataYield.first, dataYieldSdb.first, dataSSYield.first, dataSSYieldSdb.first);
-			//printf("Di-Boson & %.2f $\\pm$ %.2f & %.2f $\\pm$ %.2f & - & - \\\\ \n", vvInflYield.first, quadrature(vvInflYield.first,vvInflYield.second,muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_), vvInflYieldSdb.first, quadrature(vvInflYieldSdb.first,vvInflYieldSdb.second,muIDErr_,eleIDErr_,tauIDErr_));
-			//printf("$t\\bar{t}$ & %.2f $\\pm$ %.2f & %.2f $\\pm$ %.2f & - & - \\\\ \n", topInflYield.first,quadrature(topInflYield.first,topInflYield.second,muIDErr_,eleIDErr_,tauIDErr_), topInflYieldSdb.first, quadrature(topInflYieldSdb.first,topInflYield.second,muIDErr_,eleIDErr_,tauIDErr_));
-			//printf("$Z^{l+jet}$ & %.2f $\\pm$ %.2f & - & %.2f $\\pm$ %.2f & - \\\\ \n", zjftInflYield.first, quadrature(zjftInflYield.first,zjftInflYield.second,muIDErr_,eleIDErr_,zttScaleErr_), zjftInflSSYield.first,quadrature(zjftInflSSYield.first,zjftInflSSYield.second,muIDErr_,eleIDErr_,zttScaleErr_));
-			//printf("$Z^{ll}$ & %.2f $\\pm$ %.2f & - & %.2f $\\pm$ %.2f & - \\\\ \n", zlftInflYield.first, quadrature(zlftInflYield.first,zlftInflYield.second,muIDErr_,eleIDErr_,zttScaleErr_),zlftInflSSYield.first,quadrature(zlftInflSSYield.first,zlftInflSSYield.second,muIDErr_,eleIDErr_,zttScaleErr_));
+			//printf("Di-Boson & %.2f $\\pm$ %.2f & %.2f $\\pm$ %.2f & - & - \\\\ \n", vvInflYield.first, quadrature(vvInflYield.first,vvInflYield.second,zttScaleErr_,tauIDErr_), vvInflYieldSdb.first, quadrature(vvInflYieldSdb.first,vvInflYieldSdb.second,tauIDErr_));
+			//printf("$t\\bar{t}$ & %.2f $\\pm$ %.2f & %.2f $\\pm$ %.2f & - & - \\\\ \n", topInflYield.first,quadrature(topInflYield.first,topInflYield.second,tauIDErr_), topInflYieldSdb.first, quadrature(topInflYieldSdb.first,topInflYield.second,tauIDErr_));
+			//printf("$Z^{l+jet}$ & %.2f $\\pm$ %.2f & - & %.2f $\\pm$ %.2f & - \\\\ \n", zjftInflYield.first, quadrature(zjftInflYield.first,zjftInflYield.second,zttScaleErr_), zjftInflSSYield.first,quadrature(zjftInflSSYield.first,zjftInflSSYield.second,zttScaleErr_));
+			//printf("$Z^{ll}$ & %.2f $\\pm$ %.2f & - & %.2f $\\pm$ %.2f & - \\\\ \n", zlftInflYield.first, quadrature(zlftInflYield.first,zlftInflYield.second,zttScaleErr_),zlftInflSSYield.first,quadrature(zlftInflSSYield.first,zlftInflSSYield.second,zttScaleErr_));
 			//printf("$W+jets$ & %.2f $\\pm$ %.2f & %.2f $\\pm$ %.2f & %.2f $\\pm$ %.2f & %.2f $\\pm$ %.2f  \\\\ \n", osWLow.first, osWLow.second, osWHigh.first, osWHigh.second, ssWLow.first, ssWLow.second, dataSSYieldSdb.first, dataSSYieldSdb.second);
 			//printf("QCD & %.2f $\\pm$ %.2f & - & %.2f $\\pm$ %.2f & - \\\\ \n", osQCD.first, osQCD.second, ssQCD.first, ssQCD.second);
-			//printf("$Z\\rightarrow\\tau\\tau$ & %.2f $\\pm$ %.2f & - & - & - \\\\ \n", zttYield.first,quadrature(zttYield.first,zttYield.second,muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_));
+			//printf("$Z\\rightarrow\\tau\\tau$ & %.2f $\\pm$ %.2f & - & - & - \\\\ \n", zttYield.first,quadrature(zttYield.first,zttYield.second,zttScaleErr_,tauIDErr_));
 
 
-			float fullBackgroundErr = sqrt(pow(quadrature(output.VV,output.dVV,muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_),2)
-					+pow(quadrature(output.TOP,output.dTOP,muIDErr_,eleIDErr_,tauIDErr_),2)
-					+pow(quadrature(output.ZJFT,output.dZJFT,muIDErr_,eleIDErr_,zttScaleErr_),2)
-					+pow(quadrature(output.ZLFT,output.dZLFT,muIDErr_,eleIDErr_,zttScaleErr_),2)
+			float fullBackgroundErr = sqrt(pow(quadrature(output.VV,output.dVV,zttScaleErr_,tauIDErr_),2)
+					+pow(quadrature(output.TOP,output.dTOP,tauIDErr_),2)
+					+pow(quadrature(output.ZJFT,output.dZJFT,zttScaleErr_),2)
+					+pow(quadrature(output.ZLFT,output.dZLFT,zttScaleErr_),2)
 					+pow(output.dQCD,2)
 					+pow(output.dW,2)
-					+pow(quadrature(output.ZTT,output.dZTT,muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_),2));
+					+pow(quadrature(output.ZTT,output.dZTT,zttScaleErr_,tauIDErr_),2));
 
-			printf("Total Background & %.2f $\\pm$ %.2f & - & - & - \\\\ \n",background,sqrt(pow(quadrature(output.VV,    output.dVV,   muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_),2)
-						+pow(quadrature(output.TOP,  output.dTOP,  muIDErr_,eleIDErr_,tauIDErr_),2)
-						+pow(quadrature(output.ZJFT, output.dZJFT, muIDErr_,eleIDErr_,zttScaleErr_),2)
-						+pow(quadrature(output.ZLFT, output.dZLFT, muIDErr_,eleIDErr_,zttScaleErr_),2)
+			printf("Total Background & %.2f $\\pm$ %.2f & - & - & - \\\\ \n",background,sqrt(pow(quadrature(output.VV,    output.dVV,   zttScaleErr_,tauIDErr_),2)
+						+pow(quadrature(output.TOP,  output.dTOP,  tauIDErr_),2)
+						+pow(quadrature(output.ZJFT, output.dZJFT, zttScaleErr_),2)
+						+pow(quadrature(output.ZLFT, output.dZLFT, zttScaleErr_),2)
 						+pow(output.dQCD,2)
 						+pow(output.dW,2)
-						+pow(quadrature(output.ZTT,output.dZTT,muIDErr_,eleIDErr_,zttScaleErr_,tauIDErr_),2)));
+						+pow(quadrature(output.ZTT,output.dZTT,zttScaleErr_,tauIDErr_),2)));
 
 
 
@@ -625,68 +624,58 @@ class DataCardCreatorHThTh_2016 {
 
 
 
-		bool runQCD(string preSelection, string prefix, string zShape, float topExtrap, BkgOutput &output, string categorySelection, string relaxedSelection) 
+		bool runQCD(string preSelection, string prefix, string zShape, float topExtrap, BkgOutput &output, string categorySelection, string qcdSelection) 
 		{
 			float leg1Corr=1.0;
 			
-			cout<<"QCD Selections= "<<"("<<preSelection_<<"&&"<<trigSelection_<<"&&"<<ssSignalSelection_<<"&&"<<categorySelection<<")"<<endl;
+			cout<<"QCD Selection= "<<"("<<qcdSelection_<<"&&"<<trigSelection_<<"&&"<<ssSignalSelection_<<"&&"<<categorySelection<<")"<<endl;
+			std::string fullRelaxedSelectionDataSS = qcdSelection+"&&"+trigSelectionData_+"&&"+ssSignalSelection_+"&&"+categorySelection;
+			std::string fullRelaxedSelectionSS     = qcdSelection+"&&"+trigSelection_    +"&&"+ssSignalSelection_+"&&"+categorySelection;
+			
+			std::string fullRelaxedSelectionDataOS = qcdSelection+"&&"+trigSelectionData_+"&&"+osSignalSelection_+"&&"+categorySelection;
+			std::string fullRelaxedSelectionOS     = qcdSelection+"&&"+trigSelection_    +"&&"+osSignalSelection_+"&&"+categorySelection;
 
-			pair<float,float> dataQCD = createHistogramAndShifts(dataFile_,"QCD","("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")",scaleUp_,prefix); 
-			printf("      Data events in SS Signal QCD sideband region = %f + %f \n",dataQCD.first,dataQCD.second);
-			pair<float,float> ZQCD = createHistogramAndShifts(zttFile_,"ZQCD","("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+Zweight_,luminosity_,prefix); 
-			printf("      Z events in SS Signal QCD sideband region = %f + %f \n",ZQCD.first,ZQCD.second);
-			pair<float,float> TopQCD = createHistogramAndShifts(topFile_,"TopQCD","("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_+"*"+TTweight_,luminosity_,prefix); 
-			printf("      TOP events in SS Signal QCD sideband region = %f + %f \n",TopQCD.first,TopQCD.second);
-			pair<float,float> VVQCD       = createHistogramAndShifts(vvFile_,"VVQCD",("("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
-			printf("      VV events in SS Signal QCD sideband region = %f + %f \n",VVQCD.first,VVQCD.second);
+			std::string fullSelectionDataSS        = preSelection+    "&&"+trigSelectionData_+"&&"+ssSignalSelection_+"&&"+categorySelection;
+			std::string fullSelectionSS            = preSelection+    "&&"+trigSelection_    +"&&"+ssSignalSelection_+"&&"+categorySelection;
 
-			pair<float,float> WQCD       = createHistogramAndShifts(wFile_,"WQCD",("("+preSelection+"&&"+trigSelection_+"&&"+ssSignalSelection_+"&&"+categorySelection+")*"+weight_),luminosity_*leg1Corr,prefix,false);
-			/*
-			printf("      (MonteCarlo) W events in SS region = %f + %f \n",ssWLow.first,ssWLow.second);
+			std::string fullSelectionDataOS        = preSelection+    "&&"+trigSelectionData_+"&&"+osSignalSelection_+"&&"+categorySelection;
+			std::string fullSelectionOS            = preSelection+    "&&"+trigSelection_    +"&&"+osSignalSelection_+"&&"+categorySelection;
 
-			//Now subtracting off bkgd shapes from data ss shape
+			//estimate Yield in OS Loose
+			//estimate Yield in SS Loose
+			//estimate Yield in SS Signal
+			std::cout<<"weight applied "<<weight_<<std::endl;
+			pair<float,float> dataQCD = createHistogramAndShifts(dataFile_,   "QCD","("+fullRelaxedSelectionDataSS+")",scaleUp_,prefix); 
+			pair<float,float> ZQCD    = createHistogramAndShifts(zttFile_,   "ZQCD","("+fullRelaxedSelectionSS+")*"+weight_+"*"+Zweight_,luminosity_,prefix); 
+			pair<float,float> TopQCD  = createHistogramAndShifts(topFile_, "TopQCD","("+fullRelaxedSelectionSS+")*"+weight_+"*"+TTweight_,luminosity_,prefix); 
+			pair<float,float> VVQCD   = createHistogramAndShifts(vvFile_,   "VVQCD","("+fullRelaxedSelectionSS+")*"+weight_,luminosity_,prefix,false);
+			pair<float,float> WQCD    = createHistogramAndShifts(wFile_,     "WQCD","("+fullRelaxedSelectionSS+")*"+weight_,luminosity_,prefix,false);
 
 			subtractHistogram(filelabel_+prefix,"QCD","ZQCD");
-			subtractHistogram(filelabel_+prefix,"QCD","VVQCD");
 			subtractHistogram(filelabel_+prefix,"QCD","TopQCD");
+			subtractHistogram(filelabel_+prefix,"QCD","VVQCD");
 			subtractHistogram(filelabel_+prefix,"QCD","WQCD");
 
-			pair<float,float> ssQCD = make_pair(TMath::Nint(dataQCD.first
-									//-ssWLowDD.first
-						-TopQCD.first
-						-VVQCD.first
-						-ZQCD.first),
-					sqrt(dataQCD.second*dataQCD.second
-						+ssWLowDD.second*ssWLowDD.second
-						+TopQCD.second*TopQCD.second
-						+VVQCD.second*VVQCD.second
-						+ZQCD.second*ZQCD.second));
+			//pair<float,float>YieldSSRelaxed = estimateQCDYield();
+			pair<float,float>YieldSSLoose = estimateQCDYield("SS Loose Region", fullRelaxedSelectionDataSS, fullRelaxedSelectionSS);
+			cout<<"     Data Events in SS Signal QCD loose sideband region = "<<YieldSSLoose.first<<" +/- " <<YieldSSLoose.second<<endl;
+			pair<float,float>YieldOSLoose = estimateQCDYield("OS Loose Region", fullRelaxedSelectionDataOS, fullRelaxedSelectionOS);
+			cout<<"     Data Events in OS Signal QCD loose sideband region = "<<YieldOSLoose.first<<" +/- " <<YieldOSLoose.second<<endl;
+			pair<float,float>YieldSSTight = estimateQCDYield("SS Tight Region", fullSelectionDataSS,        fullSelectionSS);
+			cout<<"     Data Events in SS Signal QCD tight sideband region = "<<YieldSSTight.first<<" +/- " <<YieldSSTight.second<<endl;
 
+			float LooseToTightSF    = YieldSSTight.first/YieldSSLoose.first; 
+			//Calculate SSTight/SSLoose
+			float LooseToTightSFErr = errorDiv(YieldSSTight,YieldSSLoose);
+			std::cout<<"Loose to Tight SF: "<<LooseToTightSF<<" +/- "<<LooseToTightSFErr<<std::endl;
+			//Multiply OSLoose by SSTight/SSLoose
+			float finalYield = YieldOSLoose.first*LooseToTightSF*qcdFactor_;
+			float finalErr   = errorMult(YieldOSLoose,make_pair(LooseToTightSF,LooseToTightSFErr));
+			std::cout<<"QCD Final Yield: "<<finalYield<<" +/- "<<finalErr<<std::endl;
+			renormalizeHistogram(filelabel_+prefix,"QCD",finalYield);
 
-			if(ssQCD.first<0) {
-				ssQCD.first=0.0000001;
-				ssQCD.second=1.8;
-			}
-
-			printf("SS QCD in  core  =%f -%f -%f -%f -%f= %f +- %f \n",
-					dataQCD.first,
-					ssWLowDD.first,
-					TopQCD.first,
-					ZQCD.first,
-					VVQCD.first,
-					ssQCD.first,
-					ssQCD.second);
-
-
-
-			//Now Renormalize
-			renormalizeHistogram(filelabel_+prefix,"QCD",osQCD.first);
-
-			printf("OS QCD in  core  =%f *%f = %f +- %f \n",ssQCD.first,qcdFactor_,osQCD.first,osQCD.second);
-
-			output.QCD  = osQCD.first;    
-			output.dQCD = osQCD.second;
-			*/
+			output.QCD = finalYield;
+			output.dQCD = finalErr;
 			if(shifts_.size()>0){
 				qcdSyst(filelabel_, prefix, "QCD", 1.1, 0.1);
 			}
@@ -773,7 +762,50 @@ class DataCardCreatorHThTh_2016 {
 
 			return true;
 		}
+
+		pair<float,float> estimateQCDYield(string text, string dataSelection, string mcSelection){
+		  cout<<endl;
+		  cout<<"Estimating the QCD Yield for :::: "<<text<< " ::::" <<endl;
+		  //Data
+		  pair<float,float> dataYield = getYield(dataFile_,dataSelection);
+		  cout<<"Initial data Yield = "<<dataYield.first<<endl;
+		  //Z
+		  pair<float,float> ZYield    = getYield(zttFile_, "("+mcSelection+")*"+weight_,luminosity_*tauID_);
+		  cout<<"           Z Yield    - "<<ZYield.first<<endl;
+		  //W
+		  pair<float,float> WYield    = getYield(wFile_, "("+mcSelection+")*"+weight_,luminosity_*tauID_);
+		  cout<<"           W Yield    - "<<WYield.first<<endl;
+		  //TOP
+		  pair<float,float> TopYield  = getYield(topFile_, "("+mcSelection+")*"+weight_,luminosity_*tauID_);
+		  cout<<"         Top Yield    - "<<TopYield.first<<endl;
+		  //VV
+		  pair<float,float> VVYield   = getYield(vvFile_,  "("+mcSelection+")*"+weight_,luminosity_*tauID_);
+		  cout<<"         VV Yield    - "<<TopYield.first<<endl;
+		  cout<<"                     -----------------"<<endl;
+		  cout<<"                     "<<
+		    dataYield.first - ZYield.first - WYield.first - TopYield.first - VVYield.first
+		      <<" +/- "<<quadrature(dataYield.second,ZYield.second,WYield.second,TopYield.second,VVYield.second)
+		      << endl;		  
+		  float finalYield    = dataYield.first - ZYield.first - WYield.first - TopYield.first - VVYield.first;
+		  float finalYieldErr = quadrature(dataYield.second,ZYield.second,WYield.second,TopYield.second,VVYield.second);
+
+		  return make_pair(finalYield,finalYieldErr);
+		}
+		
 		//-------------Helper Functions------------------
+
+		//provide two numbers with errors that are to be divided, return division error
+		float errorDiv(pair<float,float>numerator, pair<float,float>denominator){
+		  float error = 0;
+		  error = sqrt( (numerator.second/numerator.first)*(numerator.second/numerator.first) +  (denominator.second/denominator.first)*(denominator.second/denominator.first) ) * numerator.first/denominator.first;
+		    return error;
+		}
+		//provide two numbers with errors that are to be multipled, return multiplication error
+		float errorMult(pair<float,float>number1, pair<float,float>number2){
+		  float error = 0;
+		  error = sqrt( (number1.second/number1.first)*(number1.second/number1.first) +  (number2.second/number2.first)*(number2.second/number2.first) ) * number1.first * number2.first;
+		  return error;
+		}
 
 		void addHistogramZTT(string folder, string histo1, string histo2)
 		{
@@ -990,6 +1022,30 @@ class DataCardCreatorHThTh_2016 {
 				h->SetBinContent(1,0.00001);
 			}
 			h->Write(h->GetName(),TObject::kOverwrite);
+
+			return make_pair(yield,error);
+		}
+
+		pair<float,float> getYield(string file,string cut,float scaleFactor = 1.) {
+
+			TFile *f  = new TFile(file.c_str());
+			if(f==0) printf("Not file Found\n");
+
+			//get the nominal tree first
+			TTree *tree= (TTree*)f->Get("diTauEventTree/eventTree");
+			if(tree==0) printf("Not Tree Found in file %s\n",file.c_str());
+
+			TH1F *h=0;
+
+			h= new TH1F("tmp","tmp",30,-5,5);
+			h->Sumw2();
+
+			tree->Draw("eta_1>>tmp",cut.c_str());
+
+			h->Scale(scaleFactor);
+
+			Double_t error=0.0;
+			float yield = h->IntegralAndError(1,h->GetNbinsX(),error,"");
 
 			return make_pair(yield,error);
 		}
@@ -1434,11 +1490,12 @@ class DataCardCreatorHThTh_2016 {
 		string ssWSelection_;
 		string wSelection_;
 		string qcdSelection_;
-		string bSelection_;
-		string antibSelection_;
+		//string bSelection_;
+		//string antibSelection_;
 		string relaxedSelection_;
-		string btagRelaxedSelection_;
+		//string btagRelaxedSelection_;
 		string trigSelection_;
+		string trigSelectionData_;
 		string blinding_;
 		string charge_;
 		string ZLL_genLLSel_;
@@ -1450,10 +1507,10 @@ class DataCardCreatorHThTh_2016 {
 		//Luminosity and efficiency corrections
 		float luminosity_;
 		float luminosityErr_;
-		float  muID_   ;      
-		float muIDErr_;      
-		float eleID_ ;       
-		float eleIDErr_;     
+		//float  muID_   ;      
+		//float muIDErr_;      
+		//float eleID_ ;       
+		//float eleIDErr_;     
 		float tauID_  ;
 		float tauIDHigh_;      
 		float tauIDErr_;     
