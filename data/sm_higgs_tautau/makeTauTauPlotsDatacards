@@ -20,7 +20,7 @@ qcdfactor=1.0
 topSF=1.
 bins=30
 tauID=0.95
-outputDir='diTauPlots'
+outputDir='diTauDatacards'
 
 mkdir $outputDir
 
@@ -28,7 +28,6 @@ binning='binningLowStat=20.,30.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,
 
 #signalselection='mJJ>100&&fullPt>100&&njets==2&&jdeta>3.5';
 signalselection='pt_1>10'
-
 
 MakeDataCardHThTh_2016 channel='diTau'  folder='tt_inclusive'  dataFile=$datadirec'tauDATA.root' qcdFile=$direc'tauDATA.root' zttFile=$direc'ZJETS.root' zllFile=$direc'ZJETS.root' wFile=$direc'WJETS.root' vvFile=$direc'DiBoson.root' topFile=$direc'TT.root' preselection=$preselection  wselection=$wselection  relaxedSelection=$relaxedSelection trigSelection=$trigselection trigSelectionData=$trigselectiondata  signalselection=$signalselection   qcdselection=$qcdselection luminosityErr=0.045 qcdfactor=$qcdfactor qcdfactorErr=0.02 vvErr=0.3   zttScale=$zttScale zttScaleErr=0.033    wFactorErr=0.06    zjfterr=0.1  zlfterr=0.24   topErr=0.075  topSF=$topSF  tauID=$tauID tauIDErr=0.06  dir=$direc''  bID=1.0  bIDErr=0.10  bMisID=1.0  bMisIDErr=0.17    bitmask=1,0,0,0  weight='__WEIGHT__*GENWEIGHT*puweight*__CORR__'  luminosity=$luminosity  variable='m_vis' bins=20 min=0 max=350 outputFile=$outputDir'/tauTau_mvis.root'  
 

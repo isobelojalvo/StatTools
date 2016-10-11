@@ -408,6 +408,136 @@ class DataCardCreatorHThTh_2016 {
 			string dummySelection_   = osSignalSelection_;
 			string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
 			
+			BkgOutput output(0);    
+
+			float leg1Corr=tauID_;
+			float tauIDCorr=tauID_*tauID_;
+			printf("Tau ID Scale Factor is %.3f \n",tauID_);
+
+			/*
+			  Input QCD selection 
+			  then the estimate takes the yield and shape from the Relaxed Selection in OS
+			  Relaxed Selection is one Tau Tight one Tau Anti-Tight
+			  then multiply by an Loose to Tight SF 
+			  QCD = OS Loose * (SS tight / SS Loose)
+			  ->The regions for the scale factor should be calculated in a distribution without tails (i.e. tau eta)
+			  ->The Yields in these regions should subtract the MC estimates
+			  Needed: 1.) Yield estimator (no histograms)  2.) division and multiplication error propogator
+			 */
+			cout<<"Create QCD"<<endl;
+			if(!runQCD(preSelection, prefix, zShape, topExtrap, output, "pt_1>-100", qcdSelection_)){ //pt_1>-100 is the category Selection
+				cout<<"Error Creating QCD"<<endl;
+				return output;
+			}
+
+                        cout<<"Create Data"<<endl;
+			cout<<"      Data Selection: "<<preSelection<<"&&"<<osSignalSelection_<<endl;
+			string fullSelection = preSelection+"&&"+trigSelection_+"&&"+osSignalSelection_;
+			string fullSelectionData = preSelection+"&&"+trigSelectionData_+"&&"+osSignalSelection_;
+
+			pair<float,float> dataY     = createHistogramAndShifts(dataFile_,"data_obs","("+fullSelectionData+"&&"+blinding_+")",scaleUp_,prefix);
+			output.DATA = dataY.first;
+
+                        cout<<"Create Top"<<endl;
+			//Create ttbar
+
+			pair<float,float> topYield   = createHistogramAndShifts(topFile_,"TT",("("+fullSelection+")*"+weight_+"*"+TTweight_),luminosity_*tauIDCorr*topExtrap,prefix);
+			pair<float,float> topInflYield  = inflateError(topYield,topErr_);
+
+			output.TOP  = topInflYield.first;
+			output.dTOP = topInflYield.second;
+
+                        cout<<"Create VV"<<endl;
+			//Create Diboson
+			pair<float,float> vvYield      = createHistogramAndShifts(vvFile_,"VV",("("+fullSelection+")*"+weight_),luminosity_*tauIDCorr,prefix);
+			pair<float,float> vvInflYield  = inflateError(vvYield,vvErr_);
+			output.VV  = vvInflYield.first;
+			output.dVV = vvInflYield.second;
+
+
+                        cout<<"Create ZLFT"<<endl;
+                        cout<<"      Factor ZLFT: "<<zlftFactor_<<endl;
+			//Create ZL and ZJ
+
+			pair<float,float> zlftYield   = createHistogramAndShifts(zllFile_,"ZL",("("+fullSelection+"&&"+ZLFT_genLSel_+")*"+weight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix,false);
+			pair<float,float> zlftInflYield  = inflateError(zlftYield,zlftErr_);
+
+
+			output.ZLFT  = zlftInflYield.first;
+			output.dZLFT = zlftInflYield.second;
+
+                        cout<<"Create ZJFT"<<endl;
+			pair<float,float> zjftYield      = createHistogramAndShifts(zllFile_,"ZJ",("("+fullSelection+"&&"+ZJFT_genLReject_+")*"+weight_),luminosity_*leg1Corr*zttScale_,prefix);    
+			pair<float,float> zjftInflYield  = inflateError(zjftYield,zjftErr_);
+
+			output.ZJFT  = zjftInflYield.first;
+			output.dZJFT = zjftInflYield.second;
+
+                        cout<<"Create ZTT"<<endl;
+			pair<float,float> ZTT    = createHistogramAndShifts(zttFile_,"ZTT",("("+fullSelection+")*"+weight_),luminosity_*tauIDCorr*zttScale_,prefix);    
+			output.ZTT = ZTT.first;
+			output.dZTT = ZTT.second;
+
+			//Create W 
+			//In principle osSignalSelection should work as a dummy variable
+			cout<<"Create W"<<endl;
+			pair<float,float> W    = createHistogramAndShifts(wFile_,"W",("("+fullSelection+")*"+weight_),luminosity_*leg1Corr,prefix);
+			output.W = W.first;
+			output.dW = W.second;
+			
+                        cout<<"Create QCD"<<endl;
+			//Create QCD
+			printf("      TTbar events in signal region = %f + %f \n",topInflYield.first,topInflYield.second);
+			printf("      Diboson events before inflation = %f + %f \n",vvYield.first,vvYield.second);
+			printf("      Diboson events in signal region = %f + %f \n",vvInflYield.first,vvInflYield.second);
+			printf("      Z (l->tau) in signal region = %f + %f \n",zlftInflYield.first,zlftInflYield.second);
+			printf("      Z (j->tau) in signal region = %f + %f \n",zjftInflYield.first,zjftInflYield.second);
+
+			cout<<"=============Data Yields============="<<endl;
+			cout<<"DATA: "<< output.DATA<<"==="<<endl;
+			cout<<"BKGD Yields ==="<<endl;
+			cout<<"QCD: "<< output.QCD<<endl;
+			cout<<"W: "<< output.W<<endl;
+			cout<<"TOP: "<< output.TOP<<endl;
+			cout<<"VV: "<< output.VV<<endl;
+			cout<<"ZLFT: "<< output.ZLFT<<endl;
+			cout<<"ZJFT: "<< output.ZJFT<<endl;
+			cout<<"ZTT: "<< output.ZTT<<endl;
+
+			//TODO: Check that this outputs the correct values
+			float background    = output.QCD  + output.W  + output.TOP  + output.VV  + output.ZLFT  + output.ZJFT  + output.ZTT;
+			float backgroundErr = sqrt( pow(output.dQCD,2) + pow(output.dW,2) + pow(output.dTOP,2) + pow(output.dVV,2) + pow(output.dZLFT,2) + pow(output.dZJFT,2) + pow(output.dZTT,2));
+
+			printf("BACKGROUND=%f +-%f \n",background,backgroundErr);
+
+
+			float fullBackgroundErr = sqrt(pow(quadrature(output.VV,output.dVV,zttScaleErr_,tauIDErr_),2)
+					+pow(quadrature(output.TOP,output.dTOP,tauIDErr_),2)
+					+pow(quadrature(output.ZJFT,output.dZJFT,zttScaleErr_),2)
+					+pow(quadrature(output.ZLFT,output.dZLFT,zttScaleErr_),2)
+					+pow(output.dQCD,2)
+					+pow(output.dW,2)
+					+pow(quadrature(output.ZTT,output.dZTT,zttScaleErr_,tauIDErr_),2));
+
+			printf("Total Background & %.2f $\\pm$ %.2f & - & - & - \\\\ \n",background,sqrt(pow(quadrature(output.VV,    output.dVV,   zttScaleErr_,tauIDErr_),2)
+						+pow(quadrature(output.TOP,  output.dTOP,  tauIDErr_),2)
+						+pow(quadrature(output.ZJFT, output.dZJFT, zttScaleErr_),2)
+						+pow(quadrature(output.ZLFT, output.dZLFT, zttScaleErr_),2)
+						+pow(output.dQCD,2)
+						+pow(output.dW,2)
+						+pow(quadrature(output.ZTT,output.dZTT,zttScaleErr_,tauIDErr_),2)));
+
+
+
+			//create a histogram with the error for plotting reasons and only
+			TH1F *err = new TH1F("BKGErr","",1,0,1);
+			err->SetBinContent(1,fullBackgroundErr/background);
+			fout_->cd((filelabel_+prefix).c_str());
+			err->Write();
+
+			return output;      
+
+			/*
 			//no b-tagging run yet
 			//weight_ = weight_+"*"+bTagSF;
 
@@ -459,23 +589,23 @@ class DataCardCreatorHThTh_2016 {
                         cout<<"Create ZTT"<<endl;
 			//TODO: Check me, previous Btag ZTT shape correction had a special normalization method
 			pair<float,float> ztt  = createHistogramAndShifts(zttFile_,"ZTT",("("+fullSelection+"&&"+categorySelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+Zweight_),luminosity_*zttScale_*leg1Corr*tauID_,prefix);
-			/*
+
 			if(!runZTT(preSelection, prefix, zShape, topExtrap, output, categorySelection)){
 				cout<<"Error Creating Ztt"<<endl;
 				return output;
 			}
-			*/
+
 
                         cout<<"Create TOP"<<endl;
 			//Create ttbar
 			//Last argument is a dummy argument
 			pair<float,float> topShape      = createHistogramAndShifts(topFile_,"TT",("("+fullSelection+"&&"+categorySelection+")*"+weight_+"*"+TTweight_), luminosity_*leg1Corr*tauID_*topExtrap, prefix);
-			/*
+
 			if(!runTOP(preSelection, prefix, zShape, topExtrap, output, categorySelection, relaxedSelection)){
 				cout<<"Error Creating TOP"<<endl;
 				return output;
 			}
-			*/
+
 
                         cout<<"Create W"<<endl;
 			pair<float,float> wShape         = createHistogramAndShifts(wFile_,"W",("("+fullSelection+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
@@ -483,12 +613,12 @@ class DataCardCreatorHThTh_2016 {
 			//pair<float,float> wYield         = createHistogramAndShifts(wFile_,"WYield",("("+fullSelection+"&&"+categorySelection+")*"+weight_),luminosity_,prefix,false);
 			output.W  = wShape.first;
 			output.dW = wShape.second;
-			/*
+
 			if(!runW(preSelection, prefix, zShape, topExtrap, output, categorySelection, relaxedSelection, wSel)){
 				cout<<"Error Creating W"<<endl;
 				return output;
 				}
-			*/
+
 
                         cout<<"Create QCD"<<endl;
 			//Create QCD
@@ -561,7 +691,7 @@ class DataCardCreatorHThTh_2016 {
 			err->SetBinContent(1,fullBackgroundErr/background);
 			fout_->cd((filelabel_+prefix).c_str());
 			err->Write();
-
+*/
 			return output;
 
 		}
