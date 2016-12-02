@@ -100,9 +100,10 @@ int main (int argc, char* argv[])
 	printf(" Running OS LS MT \n"); 
 		printf("INCLUSIVE: MT Cut:  preselection -------------------------------------\n"); 
 		std::string inclSel = parser.stringValue("preselection"); //signalselection  has mt_cut
+		std::string foldername = parser.stringValue("folder");
                 std::cout<<"using preselection: "<<inclSel<<std::endl;
-		BkgOutput output = creator.runOSLSMT(inclSel,"_inclusive",parser.stringValue("zEmbeddedSample"),parser.doubleValue("topSF"));
-		creator.makeHiggsShape(inclSel,inclSel,"_inclusive");
+		BkgOutput output = creator.runOSLSMT(inclSel,foldername,parser.stringValue("zEmbeddedSample"),parser.doubleValue("topSF"));
+		creator.makeHiggsShape(inclSel,inclSel,foldername);
 	
        
 	if(bitmask[1]==1){
@@ -112,7 +113,8 @@ int main (int argc, char* argv[])
 		std::string inclSel = parser.stringValue("preselection"); 
 		std::string catSel = parser.stringValue("extraselection"); //any cat cut
 		std::string catDataSel = parser.stringValue("extraselection"); //any cat cut
-		std::string bTagSF = parser.stringValue("bTagSF");					 	    std::string foldername = parser.stringValue("folder");
+		std::string bTagSF = parser.stringValue("bTagSF");					 	    
+		std::string foldername = parser.stringValue("folder");
 		creator.makeHiggsShape(inclSel,catSel,"_extraselection");
 		BkgOutput outputIncl = creator.runFullExtrapBtag(inclSel,parser.stringValue("wselection"),inclSel,catSel,foldername,parser.stringValue("zEmbeddedSample"),parser.doubleValue("topSF"),
 				1,//parser.doubleValue("zExtrap"),
@@ -123,5 +125,3 @@ int main (int argc, char* argv[])
 
 	creator.close();
 }
-
-
