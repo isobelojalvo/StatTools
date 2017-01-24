@@ -1,5 +1,5 @@
 
-#include "UWAnalysis/StatTools/interface/DataCardCreatorHThTh_2016.h"
+#include "UWAnalysis/StatTools/interface/DataCardCreatorHThTh_2016_2D.h"
 #include "PhysicsTools/FWLite/interface/CommandLineParser.h" 
 
 
@@ -47,8 +47,8 @@ int main (int argc, char* argv[])
 	parser.addOption("max",optutl::CommandLineParser::kDouble,"Maximum Value ",500.);
 	parser.addOption("bins",optutl::CommandLineParser::kInteger,"Number of Bins",50);
 	parser.addOption("verbose",optutl::CommandLineParser::kInteger,"verbose",0);
-	parser.addOption("binningHighStat",optutl::CommandLineParser::kDoubleVector,"Define Custom Variable Binning");
-	parser.addOption("binningLowStat",optutl::CommandLineParser::kDoubleVector,"Define Custom Variable Binning");
+	parser.addOption("binningX",optutl::CommandLineParser::kDoubleVector,"Define Custom Variable Binning");
+	parser.addOption("binningY",optutl::CommandLineParser::kDoubleVector,"Define Custom Variable Binning");
 
 
 	//Input Scale Factors
@@ -89,12 +89,12 @@ int main (int argc, char* argv[])
 
 	parser.parseArguments (argc, argv);
 	std::vector<int> bitmask = parser.integerVector("bitMask");
-	DataCardCreatorHThTh_2016 creator(parser);
+	DataCardCreatorHThTh_2016_2D creator(parser);
 
-	printf("HighStat has %d entries ,LowStat has %d entries\n",(int)parser.doubleVector("binningHighStat").size(),(int)parser.doubleVector("binningLowStat").size());
 
 	//Inclusive
-	creator.setBinning(parser.doubleVector("binningLowStat"));
+	creator.setBinningX(parser.doubleVector("binningX"));
+	creator.setBinningY(parser.doubleVector("binningY"));
 
 	printf(" -------------------------------------\n"); 
 	printf(" --------New Variable--------\n"); 
