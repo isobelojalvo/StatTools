@@ -177,6 +177,18 @@ class DataCardCreatorHThTh_2016 {
 		}
 
 
+		/*
+
+		  removing these samples as they are not yet ready :( 
+		  -rw-r--r--. 1 ojalvo zh        322 Jan 24 19:12 ggH120.root
+		  -rw-r--r--. 1 ojalvo zh        322 Jan 24 19:13 ggH130.root
+		  -rw-r--r--. 1 ojalvo zh        326 Jan 24 19:13 vbfH120.root
+		  -rw-r--r--. 1 ojalvo zh        326 Jan 24 19:13 vbfH130.root
+		  -rw-r--r--. 1 ojalvo zh        322 Jan 24 19:13 ttH120.root
+		  -rw-r--r--. 1 ojalvo zh        322 Jan 24 19:13 ttH125.root
+		  -rw-r--r--. 1 ojalvo zh        322 Jan 24 19:13 ttH130.root
+		 */
+
 		void makeHiggsShape(string preselection, string categoryselection, string prefix) {
 
 			pair<float,float> tmp;
@@ -188,13 +200,14 @@ class DataCardCreatorHThTh_2016 {
 			legCorr = tauID_;
                         cout<<"Make Higgs Shape"<<endl;
 			std::string fullselection = "("+preselection+"&&"+categoryselection+"&&"+trigSelection_+"&&"+osSignalSelection_+")*"+weight_;
-			tmp= createHistogramAndShifts(dir_+"ggH120.root","ggH120",(fullselection),luminosity_*legCorr*legCorr,prefix);
+			//tmp= createHistogramAndShifts(dir_+"ggH120.root","ggH120",(fullselection),luminosity_*legCorr*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"ggH125.root","ggH125",(fullselection),luminosity_*legCorr*legCorr,prefix);
-			tmp= createHistogramAndShifts(dir_+"ggH130.root","ggH130",(fullselection),luminosity_*legCorr*legCorr,prefix);
+			//tmp= createHistogramAndShifts(dir_+"ggH130.root","ggH130",(fullselection),luminosity_*legCorr*legCorr,prefix);
 
-			tmp= createHistogramAndShifts(dir_+"vbfH120.root","qqH120",(fullselection),luminosity_*legCorr*legCorr,prefix);
+			//tmp= createHistogramAndShifts(dir_+"vbfH120.root","qqH120",(fullselection),luminosity_*legCorr*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"vbfH125.root","qqH125",(fullselection),luminosity_*legCorr*legCorr,prefix);
-			tmp= createHistogramAndShifts(dir_+"vbfH130.root","qqH130",(fullselection),luminosity_*legCorr*legCorr,prefix);
+			//tmp= createHistogramAndShifts(dir_+"vbfH130.root","qqH130",(fullselection),luminosity_*legCorr*legCorr,prefix);
+
 			/*			
 			tmp= createHistogramAndShifts(dir_+"ZH120.root","ZH120",(fullselection),luminosity_*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"ZH125.root","ZH125",(fullselection),luminosity_*legCorr,prefix);
