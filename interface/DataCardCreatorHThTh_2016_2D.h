@@ -99,14 +99,10 @@ class DataCardCreatorHThTh_2016_2D {
 			charge_               = parser.stringValue("charge");
                         if (samesign_) charge_="abs(charge)==2";
    
-                  
-			ZTT_genTauSel_        = "(genVisPt1 > 15 && genVisPt2 >15)"; //Zttyield
-			//ZTT_genTauSel_        = "(gen_match_1 ==5 && gen_match_2 ==5)"; //Zttyield
-			//ZLFT_genLSel_         = "(gen_match_1 < 6 && gen_match_2 < 6 &&!(gen_match_1==5&&gen_match_2==5))"; //change me back
-			ZLFT_genLSel_         = "(gen_match_1 < 6 && gen_match_2 < 6 &&!(genVisPt1 > 15 && genVisPt2 >15))";
-                             			///Find Jet matches                        or         low tau PT matches          and                       not the ZLFT ones
-			ZJFT_genLReject_      = "(( (gen_match_1 == 6 || gen_match_2 == 6) || (genVisPt1 < 15 || genVisPt2 < 15) ) && !((gen_match_1 < 6 && gen_match_2 < 6 &&!(genVisPt1 > 15 && genVisPt2 >15)))) && m_vis>85";
-			ZLL_genLLSel_        = "(gen_match_1==6&&gen_match_2==6)"; 
+			ZTT_genTauSel_       = "(gen_match_1 ==5 && gen_match_2 ==5)"; //Zttyield
+			ZLFT_genLSel_        = "(gen_match_1 < 6 && gen_match_2 < 6 && !(gen_match_1 == 5 && gen_match_2 == 5))"; //change me back
+			ZJFT_genLReject_     = "(gen_match_2 == 6 || gen_match_1 == 6)";
+
 
 			if(samesign_>0)
 			  osSignalSelection_    = signalSelection_+"&&abs(charge)==2";
@@ -145,8 +141,8 @@ class DataCardCreatorHThTh_2016_2D {
 
 			//read the event weight for MC and embedded
 			weight_        = parser.stringValue("weight");
-			Zweight_        = parser.stringValue("Zweight");
-			TTweight_        = parser.stringValue("TTweight");
+			Zweight_       = parser.stringValue("Zweight");
+			TTweight_      = parser.stringValue("TTweight");
 			embWeight_     = parser.stringValue("embWeight");
 
 			//define the histogram binning
@@ -197,7 +193,7 @@ class DataCardCreatorHThTh_2016_2D {
 			tmp= createHistogramAndShifts(dir_+"vbfH120.root","qqH120",(fullselection),luminosity_*legCorr*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"vbfH125.root","qqH125",(fullselection),luminosity_*legCorr*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"vbfH130.root","qqH130",(fullselection),luminosity_*legCorr*legCorr,prefix);
-			/*			
+
 			tmp= createHistogramAndShifts(dir_+"ZH120.root","ZH120",(fullselection),luminosity_*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"ZH125.root","ZH125",(fullselection),luminosity_*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"ZH130.root","ZH130",(fullselection),luminosity_*legCorr,prefix);
@@ -214,7 +210,7 @@ class DataCardCreatorHThTh_2016_2D {
 			tmp= createHistogramAndShifts(dir_+"ttH125.root","ttH125",(fullselection),luminosity_*legCorr,prefix);
 			tmp= createHistogramAndShifts(dir_+"ttH130.root","ttH130",(fullselection),luminosity_*legCorr,prefix);
 			
-			*/
+
                         cout<<"susyggH"<<endl;
 
 			//tmp= createHistogramAndShifts(dir_+"susyggH_80.root","ggH80",(fullselection),luminosity_*legCorr,prefix);
@@ -1008,7 +1004,7 @@ class DataCardCreatorHThTh_2016_2D {
 			TFile *f  = new TFile(file.c_str());
 			if(f==0) printf("Not file Found\n");
 			//get the nominal tree first
-			TTree *t= (TTree*)f->Get((channel_+"EventTree/eventTree").c_str());
+			TTree *t= (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 			if(t==0) printf("Not Tree Found in file %s\n",file.c_str());
 			pair<float,float> yield;
 
@@ -1206,7 +1202,7 @@ class DataCardCreatorHThTh_2016_2D {
 			if(f==0) printf("Not file Found\n");
 
 			//get the nominal tree first
-			TTree *tree= (TTree*)f->Get("diTauEventTree/eventTree");
+			TTree *tree= (TTree*)f->Get("diTauEventTreeFinal/eventTree");
 			if(tree==0) printf("Not Tree Found in file %s\n",file.c_str());
 
 			TH1F *h=0;
@@ -1358,7 +1354,7 @@ class DataCardCreatorHThTh_2016_2D {
 
 		pair<float,float> extractRFactor(string file,string preselection,string postfix) {
 			TFile *f  = new TFile (file.c_str());
-			TTree *t = (TTree*)f->Get((channel_+"EventTree/eventTree").c_str());
+			TTree *t = (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 
 			pair<float,float> ss;
 			pair<float,float> os;
@@ -1388,7 +1384,7 @@ class DataCardCreatorHThTh_2016_2D {
 
 		pair<float,float> extractWFactor(string file,string preselection,string postfix, string Wweight = "1") {
 			TFile *f  = new TFile (file.c_str());
-			TTree *t = (TTree*)f->Get((channel_+"EventTree/eventTree").c_str());
+			TTree *t = (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 
 			pair<float,float> high;
 			pair<float,float> low;
@@ -1436,7 +1432,7 @@ class DataCardCreatorHThTh_2016_2D {
 
 		pair<float,float> extractWFactor(string file, string preselection, string postfix, string wSel, string sigSel) {
 			TFile *f  = new TFile (file.c_str());
-			TTree *t = (TTree*)f->Get((channel_+"EventTree/eventTree").c_str());
+			TTree *t = (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 			//TTree *t = (TTree*)f->Get((channel_+"EventTreeFinal/eventTree").c_str());
 
 			pair<float,float> high;
