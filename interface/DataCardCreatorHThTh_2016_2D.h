@@ -55,6 +55,8 @@ class DataCardCreatorHThTh_2016_2D {
 			shifts_  = parser.stringVector("shifts");
 			energy_ = parser.stringValue("energy");
 			samesign_ = parser.doubleValue("samesign");
+			doSys_    = parser.doubleValue("doSys");//addme
+			//useTEC_  = parser.doubleValue("useTEC");//addme
 
 
                         string name_=channel_;
@@ -98,7 +100,7 @@ class DataCardCreatorHThTh_2016_2D {
 			blinding_             = parser.stringValue("blinding");
 			charge_               = parser.stringValue("charge");
                         if (samesign_) charge_="abs(charge)==2";
-   
+
 			ZTT_genTauSel_       = "(gen_match_1 ==5 && gen_match_2 ==5)"; //Zttyield
 			ZLFT_genLSel_        = "(gen_match_1 < 6 && gen_match_2 < 6 && !(gen_match_1 == 5 && gen_match_2 == 5))"; //change me back
 			ZJFT_genLReject_     = "(gen_match_2 == 6 || gen_match_1 == 6)";
@@ -360,6 +362,16 @@ class DataCardCreatorHThTh_2016_2D {
 			pair<float,float> ZTT    = createHistogramAndShifts(zttFile_,"ZTT",("("+fullSelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+Zweight_),luminosity_*tauIDCorr*zttScale_,prefix);    
 			output.ZTT = ZTT.first;
 			output.dZTT = ZTT.second;
+
+			//addme
+			//ZTT shifts should use shifted preselection + trigger/signal/gen selection, weighting is similar as well
+			//if(doSys_>0)
+			//createZTTShiftsTES(trigSelection_+"&&"+osSignalSelection_+"&&"+ZTT_genTauSel_,weight_+"*"+Zweight_,luminosity_*tauIDCorr*zttScale_,prefix,ZTT);
+
+			//addme
+			if(doSys_>0)
+			  runZSys(fullSelection,leg1Corr,tauIDCorr,topExtrap,prefix);
+
 
 			//Create W 
 			//In principle osSignalSelection should work as a dummy variable
@@ -754,6 +766,89 @@ class DataCardCreatorHThTh_2016_2D {
 
 			printf("      Selection ZTT events in signal region = %f + %f \n",ztt.first,ztt.second);
 			return true;
+		}
+
+
+		//addme
+		/*
+		 * ZTT shifts need to take into account up/down TES
+		 * As well as shifted SVMass
+		 * 1.) Check that we have the up/down cuts
+		 * 2.) Check that we have the up/down variable (or use nominal)
+		 * 3.) Rename histogram
+
+		
+		void createZTTShiftsTES(string inputSelections, string inputWeight, float scale, string prefix,  pair<float,float> nominalYield){
+
+		  pair<float,float> ZTTUP    = createHistogramAndShiftsCustomVar( variableUp_,   zttFile_,"ZTTTESUp",  ("("+preSelectionUp_   +"&&"+inputSelections+")*"+inputWeight),scale,prefix);
+		  pair<float,float> ZTTDown  = createHistogramAndShiftsCustomVar( variableDown_, zttFile_,"ZTTTESDown",("("+preSelectionDown_ +"&&"+inputSelections+")*"+inputWeight),scale,prefix);
+
+		  renameHist( filelabel_+prefix, "CMS_scale_t_tt_13TeVUp",   "ZTTTESUp");
+		  renameHist( filelabel_+prefix, "CMS_scale_t_tt_13TeVDown", "ZTTTESDown");
+		  //addme
+
+		  //a quick sanity check... 
+		  std::cout<<"ZTT nominalYield "<< nominalYield.first <<" UpYield "<<ZTTUP.first<<" DownYield "<<ZTTDown.first<<std::endl;
+		  std::cout<<"ZTT nominalUncertainty "<< nominalYield.second <<" UpUncertainty "<<ZTTUP.second<<" DownUncertainty "<<ZTTDown.second<<std::endl;
+		  if((abs(nominalYield.first-ZTTUP.first)/nominalYield.first)>0.2)
+		    std::cout<<"Difference between Nominal and Up is greater than 20% this might indicate a problem"<<std::endl;
+		  if((abs(nominalYield.first-ZTTDown.first)/nominalYield.first)>0.2)
+		    std::cout<<"Difference between Nominal and Down is greater than 20% this might indicate a problem"<<std::endl;
+
+		}		 */
+
+		void createJetFakeSystematics(string inputSelections, float tauIDCorr, float leg1Corr, float topExtrap, string prefix){
+		  //check me if we do the gen selection correctly
+		  pair<float,float> zjftYieldUp     = createHistogramAndShifts(zllFile_, "ZJ_jetFakeUp",    ("("+inputSelections+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*"+Zweight_+"*jetFakejetToTauFakeWeightUp"),   luminosity_*leg1Corr*zttScale_,prefix);    
+		  pair<float,float> zjftYieldDown   = createHistogramAndShifts(zllFile_, "ZJ_jetFakeDown",  ("("+inputSelections+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*"+Zweight_+"*jetFakejetToTauFakeWeightDown"), luminosity_*leg1Corr*zttScale_,prefix);    
+
+		  pair<float,float> topJetYieldUp   = createHistogramAndShifts(topFile_, "TTJ_jetFakeUp",   ("("+inputSelections+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*"+TTweight_+"*jetFakejetToTauFakeWeightUp"),  luminosity_*tauID_*topExtrap,prefix);
+		  pair<float,float> topJetYieldDown = createHistogramAndShifts(topFile_, "TTJ_jetFakeDown", ("("+inputSelections+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*"+TTweight_+"*jetFakejetToTauFakeWeightDown"),luminosity_*tauID_*topExtrap,prefix);
+
+		  pair<float,float> vvYieldUp       = createHistogramAndShifts(vvFile_,  "VVJ_jetFakeUp",   ("("+inputSelections+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*jetFakejetToTauFakeWeightUp"),  luminosity_*tauIDCorr*vvScale_,prefix);		  
+		  pair<float,float> vvYieldDown     = createHistogramAndShifts(vvFile_,  "VVJ_jetFakeDown", ("("+inputSelections+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*jetFakejetToTauFakeWeightDown"),luminosity_*tauIDCorr*vvScale_,prefix);		  
+
+		  pair<float,float> WYieldUp        = createHistogramAndShifts(wFile_,   "W_jetFakeUp",     ("("+inputSelections+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*jetFakejetToTauFakeWeightUp"),  luminosity_*leg1Corr,prefix);
+		  pair<float,float> WYieldDown      = createHistogramAndShifts(wFile_,   "W_jetFakeDown",   ("("+inputSelections+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*jetFakejetToTauFakeWeightDown"),luminosity_*leg1Corr,prefix);
+		  
+
+		  renameHist( filelabel_+prefix, "ZJ_CMS_htt_jetToTauFake_13TeVUp",    "ZJ_jetFakeUp");
+		  renameHist( filelabel_+prefix, "ZJ_CMS_htt_jetToTauFake_13TeVDown",  "ZJ_jetFakeDown");
+		  renameHist( filelabel_+prefix, "TTJ_CMS_htt_jetToTauFake_13TeVUp",   "TTJ_jetFakeUp");
+		  renameHist( filelabel_+prefix, "TTJ_CMS_htt_jetToTauFake_13TeVDown", "TTJ_jetFakeDown");
+		  renameHist( filelabel_+prefix, "VVJ_CMS_htt_jetToTauFake_13TeVUp",   "VVJ_jetFakeUp");
+		  renameHist( filelabel_+prefix, "VVJ_CMS_htt_jetToTauFake_13TeVDown", "VVJ_jetFakeDown");
+		  renameHist( filelabel_+prefix, "W_CMS_htt_jetToTauFake_13TeVUp",     "W_jetFakeUp") ;
+
+		}
+
+
+
+		void runTopSys(string fullSelection, float tauIDCorr, float topExtrap, string prefix){
+		  
+		  pair<float,float> topYieldUp      = createHistogramAndShifts(topFile_,"TT_CMS_htt_ttbarShape_13TeVUp",    ("("+fullSelection+")*"+weight_+"*"+TTweight_+"*"+TTweight_),luminosity_*tauIDCorr*topExtrap,prefix);
+		  pair<float,float> topYieldDown    = createHistogramAndShifts(topFile_,"TT_CMS_htt_ttbarShape_13TeVDown",  ("("+fullSelection+")*"+weight_)                            ,luminosity_*tauIDCorr*topExtrap,prefix);
+		  
+		  pair<float,float> topTauYieldUp   = createHistogramAndShifts(topFile_,"TTT_CMS_htt_ttbarShape_13TeVUp",   ("("+fullSelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+TTweight_+"*"+TTweight_),luminosity_*tauIDCorr*topExtrap,prefix);
+		  pair<float,float> topTauYieldDown = createHistogramAndShifts(topFile_,"TTT_CMS_htt_ttbarShape_13TeVDown", ("("+fullSelection+"&&"+ZTT_genTauSel_+")*"+weight_)                            ,luminosity_*tauIDCorr*topExtrap,prefix);
+		  
+		  pair<float,float> topJetYieldUp   = createHistogramAndShifts(topFile_,"TTJ_CMS_htt_ttbarShape_13TeVUp",   ("("+fullSelection+"&&!("+ZTT_genTauSel_+"))*"+weight_+"*"+TTweight_+"*"+TTweight_),luminosity_*tauID_*topExtrap,prefix);
+		  pair<float,float> topJetYieldDown = createHistogramAndShifts(topFile_,"TTJ_CMS_htt_ttbarShape_13TeVDown", ("("+fullSelection+"&&!("+ZTT_genTauSel_+"))*"+weight_)                            ,luminosity_*tauID_*topExtrap,prefix);
+		
+
+		}
+
+
+		void runZSys(string fullSelection, float leg1Corr, float tauIDCorr, float topExtrap, string prefix){
+			pair<float,float> ZTTYieldUp    = createHistogramAndShifts(zttFile_,"ZTT_CMS_htt_dyShape_13TeVUp",  ("("+fullSelection+"&&"+ZTT_genTauSel_+")*"+weight_+"*"+Zweight_+"*"+Zweight_),luminosity_*tauIDCorr*zttScale_,prefix);    
+			pair<float,float> ZTTYieldDown  = createHistogramAndShifts(zttFile_,"ZTT_CMS_htt_dyShape_13TeVDown",("("+fullSelection+"&&"+ZTT_genTauSel_+")*"+weight_)                          ,luminosity_*tauIDCorr*zttScale_,prefix);    
+
+			pair<float,float> zjftYieldUp   = createHistogramAndShifts(zllFile_,"ZJ_CMS_htt_dyShape_13TeVUp",  ("("+fullSelection+"&&"+ZJFT_genLReject_+")*"+weight_+"*"+Zweight_+"*"+Zweight_),luminosity_*leg1Corr*zttScale_,prefix);    		  
+			pair<float,float> zjftYieldDown = createHistogramAndShifts(zllFile_,"ZJ_CMS_htt_dyShape_13TeVDown",("("+fullSelection+"&&"+ZJFT_genLReject_+")*"+weight_)                          ,luminosity_*leg1Corr*zttScale_,prefix);    		  
+
+			pair<float,float> zlftYieldUp   = createHistogramAndShifts(zllFile_,"ZL_CMS_htt_dyShape_13TeVUp",  ("("+fullSelection+"&&"+ZLFT_genLSel_+")*"+weight_+"*"+Zweight_+"*"+Zweight_),luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix);
+			pair<float,float> zlftYieldDown = createHistogramAndShifts(zllFile_,"ZL_CMS_htt_dyShape_13TeVDown",("("+fullSelection+"&&"+ZLFT_genLSel_+")*"+weight_)                          ,luminosity_*leg1Corr*zlftFactor_*zttScale_,prefix);
+
 		}
 
 
@@ -1639,6 +1734,7 @@ class DataCardCreatorHThTh_2016_2D {
 		vector<string> shiftsPostFix_;
 		string energy_;
 		int samesign_;
+		float doSys_;
 
 		//files
 		TFile *fout_;

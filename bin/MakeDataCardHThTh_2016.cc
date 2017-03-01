@@ -20,11 +20,19 @@ int main (int argc, char* argv[])
 	parser.addOption("qcdFile",optutl::CommandLineParser::kString,"File with the QCD","QCD.root");
 	parser.addOption("dataFile",optutl::CommandLineParser::kString,"DATA! File","DATA.root");
 
+	parser.addOption("doSys",optutl::CommandLineParser::kDouble,"Do Systematics",0.0); //addme default NO
+	parser.addOption("useTEC",optutl::CommandLineParser::kDouble,"Use TEC folder",0.0); //addme default NO
+
 	//Input Selections
-	parser.addOption("preselection",optutl::CommandLineParser::kString,"preselection","");
+	parser.addOption("preselection",     optutl::CommandLineParser::kString,"preselection",    "");
+	parser.addOption("preselectiondata",     optutl::CommandLineParser::kString,"preselectionData",    "");
+	parser.addOption("preselectionUp",   optutl::CommandLineParser::kString,"preselectionUp",  "");//addme
+	parser.addOption("preselectionDown", optutl::CommandLineParser::kString,"preselectionDown","");//addme
+
 	parser.addOption("signalselection",optutl::CommandLineParser::kString," Signal ","mt_1<30");
 	parser.addOption("wselection",optutl::CommandLineParser::kString,"W sideband defintion ","mt_1>70");
 	parser.addOption("qcdSelection",optutl::CommandLineParser::kString,"QCD Shape definition");
+	parser.addOption("qcdselectiondata",optutl::CommandLineParser::kString,"QCD Shape definition Data");
 	parser.addOption("relaxedSelection",optutl::CommandLineParser::kString,"Relaxed Selection");
 	parser.addOption("bselection",optutl::CommandLineParser::kString,"Btagging requirement for MSSM","nbtag>=1");
 	parser.addOption("trigSelection",optutl::CommandLineParser::kString,"Trigger Selection","crossTrigger>0||(lTrigger>0&&pt_1>25)");
@@ -37,7 +45,11 @@ int main (int argc, char* argv[])
 	//Other Options
 	parser.addOption("luminosity",optutl::CommandLineParser::kDouble,"Luminosity",10.);
 	parser.addOption("luminosityErr",optutl::CommandLineParser::kDouble,"LuminosityErr",0.04);
+
 	parser.addOption("variable",optutl::CommandLineParser::kString,"Shape variable ","mass");
+	parser.addOption("variableUp",optutl::CommandLineParser::kString,"Shape variable Up","mass");//addme
+	parser.addOption("variableDown",optutl::CommandLineParser::kString,"Shape variable Down","mass");//addme
+
 	parser.addOption("Zweight",optutl::CommandLineParser::kString,"Zweight","1");
 	parser.addOption("ttweight",optutl::CommandLineParser::kString,"ttweight","1");
 	parser.addOption("weight",optutl::CommandLineParser::kString,"Weight for MC (Multiply Weight Factors here for efficiencies)","__WEIGHT__");
@@ -104,7 +116,7 @@ int main (int argc, char* argv[])
 		std::string foldername = parser.stringValue("folder");
                 std::cout<<"using preselection: "<<inclSel<<std::endl;
 		BkgOutput output = creator.runOSLSMT(inclSel,foldername,parser.stringValue("zEmbeddedSample"),parser.doubleValue("topSF"));
-		creator.makeHiggsShape(inclSel,inclSel,foldername);
+		//creator.makeHiggsShape(inclSel,inclSel,foldername);
 	
        
 	if(bitmask[1]==1){

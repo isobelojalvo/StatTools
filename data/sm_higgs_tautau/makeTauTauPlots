@@ -24,9 +24,9 @@ signalselection='pt_1>-10'
 trigselection='pt_1>24' #only for MC
 trigselectiondata='HLT_Any>0&&run<276812' #only for Data
 relaxedSelection='pt_1>40&&pt_2>40&&npv>0&&diLeptons==0&&((isoLoose_1>0.5&&isoTight_1<0.5&&isoTight_2>0.5)||(isoLoose_2>0.5&&isoTight_2<0.5&&isoTight_1>0.5))&&tightMuons==0&&tightElectrons==0&&againstMuonTight3_2>0&&againstElectronVLooseMVA6_2>0'
-luminosity=12600 #pb
-direc='/data/ojalvo/ztt_weighted27Corr/'
-direcdata='/data/ojalvo/ztt_weighted27Corr/tauDATA.root'
+luminosity=36800 #pb
+direc='/data/ojalvo/ztt_weighted_Jan23_Corr/'
+direcdata=$direc'tauDATA.root'
 
 zttScale=1.
 topWeight=1.0
@@ -35,7 +35,7 @@ qcdfactor=1.0
 topSF=1.
 bins=30
 tauID=0.95
-outputDir='diTauPlots'
+outputDir='~/diTauPlots'
 
 mkdir $outputDir
 
@@ -44,7 +44,48 @@ binning='binningLowStat=20.,30.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,
 #signalselection='mJJ>100&&fullPt>100&&njets==2&&jdeta>3.5';
 signalselection='pt_1>10'
 
-MakeDataCardHThTh_2016 channel='diTau'  folder='tt_inclusive'  dataFile=$direcdata qcdFile=$direcdata zttFile=$direc'ZJETS.root' zllFile=$direc'ZJETS.root' wFile=$direc'WJETS.root' vvFile=$direc'DiBoson.root' topFile=$direc'TT.root' preselection=$preselection  wselection=$wselection  relaxedSelection=$relaxedSelection trigSelection=$trigselection trigSelectionData=$trigselectiondata  signalselection=$signalselection   qcdselection=$qcdselection luminosityErr=0.045 qcdfactor=$qcdfactor qcdfactorErr=0.02 vvErr=0.3   zttScale=$zttScale zttScaleErr=0.033    wFactorErr=0.06    zjfterr=0.1  zlfterr=0.24   topErr=0.075  topSF=$topSF  tauID=$tauID tauIDErr=0.06  dir=$direc''  bID=1.0  bIDErr=0.10  bMisID=1.0  bMisIDErr=0.17    bitmask=1,0,0,0  weight='__WEIGHT__*GENWEIGHT*puweight*__CORR__' Zweight='__ZWEIGHT__' luminosity=$luminosity  variable='eta_1' bins=20 min=-4 max=4 outputFile=$outputDir'/tauTau_eta1.root'  
+#MakeDataCardHThTh_2016 channel='diTau'  folder='tt_inclusive'  dataFile=$direcdata qcdFile=$direcdata zttFile=$direc'ZJETS.root' zllFile=$direc'ZJETS.root' wFile=$direc'WJETS.root' vvFile=$direc'DiBoson.root' topFile=$direc'TT.root' preselection=$preselection  wselection=$wselection  relaxedSelection=$relaxedSelection trigSelection=$trigselection trigSelectionData=$trigselectiondata  signalselection=$signalselection   qcdselection=$qcdselection luminosityErr=0.045 qcdfactor=$qcdfactor qcdfactorErr=0.02 vvErr=0.3   zttScale=$zttScale zttScaleErr=0.033    wFactorErr=0.06    zjfterr=0.1  zlfterr=0.24   topErr=0.075  topSF=$topSF  tauID=$tauID tauIDErr=0.06  dir=$direc''  bID=1.0  bIDErr=0.10  bMisID=1.0  bMisIDErr=0.17    bitmask=1,0,0,0  weight='__WEIGHT__*GENWEIGHT*puweight*__CORR__' Zweight='__ZWEIGHT__' luminosity=$luminosity  variable='eta_1' bins=20 min=-4 max=4 outputFile=$outputDir'/tauTau_eta1.root'  
 
-MakeDataCardHThTh_2016 channel='diTau'  folder='tt_inclusive'  dataFile=$direcdata qcdFile=$direcdata zttFile=$direc'ZJETS.root' zllFile=$direc'ZJETS.root' wFile=$direc'WJETS.root' vvFile=$direc'DiBoson.root' topFile=$direc'TT.root' preselection=$preselection  wselection=$wselection  relaxedSelection=$relaxedSelection trigSelection=$trigselection trigSelectionData=$trigselectiondata  signalselection=$signalselection   qcdselection=$qcdselection luminosityErr=0.045 qcdfactor=$qcdfactor qcdfactorErr=0.02 vvErr=0.3   zttScale=$zttScale zttScaleErr=0.033    wFactorErr=0.06    zjfterr=0.1  zlfterr=0.24   topErr=0.075  topSF=$topSF  tauID=$tauID tauIDErr=0.06  dir=$direc''  bID=1.0  bIDErr=0.10  bMisID=1.0  bMisIDErr=0.17    bitmask=1,0,0,0  weight='__WEIGHT__*GENWEIGHT*puweight*__CORR__'  Zweight='__ZWEIGHT__'  luminosity=$luminosity  variable='m_vis' bins=20 min=0 max=350 outputFile=$outputDir'/tauTau_mvis.root'  
+#MakeDataCardHThTh_2016 channel='diTau'  folder='tt_inclusive'  dataFile=$direcdata qcdFile=$direcdata zttFile=$direc'ZJETS.root' zllFile=$direc'ZJETS.root' wFile=$direc'WJETS.root' vvFile=$direc'DiBoson.root' topFile=$direc'TT.root' preselection=$preselection  wselection=$wselection  relaxedSelection=$relaxedSelection trigSelection=$trigselection trigSelectionData=$trigselectiondata  signalselection=$signalselection   qcdselection=$qcdselection luminosityErr=0.045 qcdfactor=$qcdfactor qcdfactorErr=0.02 vvErr=0.3   zttScale=$zttScale zttScaleErr=0.033    wFactorErr=0.06    zjfterr=0.1  zlfterr=0.24   topErr=0.075  topSF=$topSF  tauID=$tauID tauIDErr=0.06  dir=$direc''  bID=1.0  bIDErr=0.10  bMisID=1.0  bMisIDErr=0.17    bitmask=1,0,0,0  weight='__WEIGHT__*GENWEIGHT*puweight*__CORR__'  Zweight='__ZWEIGHT__'  luminosity=$luminosity  variable='m_vis' bins=20 min=0 max=350 outputFile=$outputDir'/tauTau_mvis.root'  
+
+##TODO separate out Jet plots 
+for var in "variable=decayMode_1  bins=12 min=0 max=12 outputFile=${outputDir}/tauTau_decayMode_1.root "\
+ "variable=decayMode_2  bins=12 min=0 max=12     outputFile=$outputDir/tauTau_decayMode_2.root"\
+ "variable=eta_1        bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_eta_1.root"\
+ "variable=eta_2        bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_eta_2.root"\
+ "variable=ht           bins=20 min=2    max=402 outputFile=$outputDir/tauTau_ht.root"\
+ "variable=m_1          bins=20 min=0    max=3   outputFile=$outputDir/tauTau_m_1.root"\
+ "variable=m_2          bins=20 min=0    max=3   outputFile=$outputDir/tauTau_m_2.root"\
+ "variable=energyJJ     bins=20 min=2    max=302 outputFile=$outputDir/tauTau_energyJJ.root"\
+ "variable=etaJJ        bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_etaJJ.root"\
+ "variable=ptJJ         bins=20 min=2    max=302 outputFile=$outputDir/tauTau_ptJJ.root"\
+ "variable=jeta_1       bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_jeta_1.root"\
+ "variable=jphi_1       bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_jphi_1.root"\
+ "variable=jpt_1        bins=20 min=2    max=102 outputFile=$outputDir/tauTau_jpt_1.root"\
+ "variable=jeta_2       bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_jeta_2.root"\
+ "variable=jphi_2       bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_jphi_2.root"\
+ "variable=jpt_2        bins=20 min=2    max=102 outputFile=$outputDir/tauTau_jpt_2.root"\
+ "variable=njetspt20    bins=10 min=0    max=10  outputFile=$outputDir/tauTau_njetspt20.root"\
+ "variable=njets        bins=10 min=0    max=10  outputFile=$outputDir/tauTau_njets.root"\
+ "variable=met          bins=20 min=2    max=402 outputFile=$outputDir/tauTau_met.root"\
+ "variable=metphi       bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_metphi.root"\
+ "variable=mJJ          bins=20 min=2    max=302 outputFile=$outputDir/tauTau_mJJ.root"\
+ "variable=phi_1        bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_phi_1.root"\
+ "variable=phi_2        bins=20 min=-3.4 max=3.4 outputFile=$outputDir/tauTau_phi_2.root"\
+ "variable=pth          bins=20 min=2    max=102 outputFile=$outputDir/tauTau_pth.root"\
+ "variable=pt_1         bins=20 min=2    max=102 outputFile=$outputDir/tauTau_pt_1.root"\
+ "variable=pt_2         bins=20 min=2    max=102 outputFile=$outputDir/tauTau_pt_2.root"\
+ "variable=isoMVARaw_1  bins=20 min=-1   max=1   outputFile=$outputDir/tauTau_isoMVARaw_1.root"\
+ "variable=isoMVARaw_2  bins=20 min=-1   max=1   outputFile=$outputDir/tauTau_isoMVARaw_2.root"\
+ "variable=njetingap20  bins=10 min=0    max=10  outputFile=$outputDir/tauTau_njetingap20.root"\
+ "variable=njetingap    bins=10 min=0    max=10  outputFile=$outputDir/tauTau_njetingap.root"\
+ "variable=mjj          bins=30 min=2    max=300 outputFile=$outputDir/tauTau_mjj.root"\
+ "variable=pfmt_1       bins=30 min=2    max=100 outputFile=$outputDir/tauTau_pfmt_1.root"\
+ "variable=pfmt_2       bins=30 min=2    max=100 outputFile=$outputDir/tauTau_pfmt_2.root"
+do
+    echo $var
+    MakeDataCardHThTh_2016 channel='diTau'  folder='tt_inclusive'  dataFile=$direcdata qcdFile=$direcdata zttFile=$direc'ZJETS.root' zllFile=$direc'ZJETS.root' wFile=$direc'WJETS.root' vvFile=$direc'DiBoson.root' topFile=$direc'TT.root' preselection=$preselection  wselection=$wselection  relaxedSelection=$relaxedSelection trigSelection=$trigselection trigSelectionData=$trigselectiondata  signalselection=$signalselection   qcdselection=$qcdselection luminosityErr=0.045 qcdfactor=$qcdfactor qcdfactorErr=0.02 vvErr=0.3   zttScale=$zttScale zttScaleErr=0.033    wFactorErr=0.06    zjfterr=0.1  zlfterr=0.24   topErr=0.075  topSF=$topSF  tauID=$tauID tauIDErr=0.06  dir=$direc''  bID=1.0  bIDErr=0.10  bMisID=1.0  bMisIDErr=0.17    bitmask=1,0,0,0  weight='__WEIGHT__*GENWEIGHT*puweight*__CORR__'  Zweight='__ZWEIGHT__'  luminosity=$luminosity $var
+done
+
+#MakeDataCardHThTh_2016 channel='diTau'  folder='tt_inclusive'  dataFile=$direcdata qcdFile=$direcdata zttFile=$direc'ZJETS.root' zllFile=$direc'ZJETS.root' wFile=$direc'WJETS.root' vvFile=$direc'DiBoson.root' topFile=$direc'TT.root' preselection=$preselection  wselection=$wselection  relaxedSelection=$relaxedSelection trigSelection=$trigselection trigSelectionData=$trigselectiondata  signalselection=$signalselection   qcdselection=$qcdselection luminosityErr=0.045 qcdfactor=$qcdfactor qcdfactorErr=0.02 vvErr=0.3   zttScale=$zttScale zttScaleErr=0.033    wFactorErr=0.06    zjfterr=0.1  zlfterr=0.24   topErr=0.075  topSF=$topSF  tauID=$tauID tauIDErr=0.06  dir=$direc''  bID=1.0  bIDErr=0.10  bMisID=1.0  bMisIDErr=0.17    bitmask=1,0,0,0  weight='__WEIGHT__*GENWEIGHT*puweight*__CORR__'  Zweight='__ZWEIGHT__'  luminosity=$luminosity 
 

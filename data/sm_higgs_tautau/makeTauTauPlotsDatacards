@@ -32,7 +32,7 @@ zWeight=1.0
 qcdfactor=1.0
 topSF=1.0
 tauID=0.95
-outputDir='diTauDatacards'
+outputDir='~/diTauDatacards'
 
 binning='binningLowStat=20.,30.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100.,110.,120.,130.,150. binningHighStat=0.,20.,40.,60.,80.,100.,120.,140.,160.,180.,200.,250.,300.,350.' 
 
